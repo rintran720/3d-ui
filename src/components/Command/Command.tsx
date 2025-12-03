@@ -12,7 +12,7 @@ const commandVariants = cva(
   [
     "flex h-full w-full flex-col overflow-hidden rounded-lg",
     "bg-surface-800 border border-surface-700",
-    // 3D effect với extrusion
+    // 3D effect with extrusion
     "shadow-[0_4px_0_0_rgba(0,0,0,0.2),0_8px_16px_-4px_rgba(0,0,0,0.3)]",
     "before:absolute before:inset-0 before:rounded-lg",
     "before:bg-gradient-to-b before:from-white/5 before:to-transparent before:pointer-events-none",
@@ -230,7 +230,7 @@ const CommandItem = React.forwardRef<HTMLButtonElement, CommandItemProps>(
       onSelect?.(value ?? "");
     };
 
-    // Tách children thành content và shortcut
+    // Split children into content and shortcut
     const childrenArray = React.Children.toArray(children);
     let shortcut: React.ReactNode = null;
     const content: React.ReactNode[] = [];

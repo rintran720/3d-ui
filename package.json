@@ -1,8 +1,16 @@
 {
   "name": "@votekio/3d-ui",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A 3D-styled UI component library built with TailwindCSS",
   "author": "John Tran <rintran720@gmail.com>",
+  "homepage": "https://3d-ui-tawny.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rintran720/3d-ui.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rintran720/3d-ui/issues"
+  },
   "main": "./dist/index.js",
   "module": "./dist/index.esm.js",
   "types": "./dist/index.d.ts",

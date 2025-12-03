@@ -83,7 +83,7 @@ const NavigationMenuTrigger = React.forwardRef<
     className={cn(
       "group relative inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium",
       "text-surface-300 transition-all duration-150",
-      // Hover state với 3D effect
+      // Hover state with 3D effect
       "hover:bg-surface-800/80 hover:text-surface-100",
       "hover:shadow-[0_2px_0_0_rgba(0,0,0,0.1)]",
       "hover:-translate-y-0.5",
@@ -161,7 +161,7 @@ const NavigationMenuLink = React.forwardRef<
     className={cn(
       "group relative inline-flex h-10 w-max items-center justify-center rounded-md px-4 py-2 text-sm font-medium",
       "text-surface-300 transition-all duration-150",
-      // Hover state với 3D effect
+      // Hover state with 3D effect
       "hover:bg-surface-800/80 hover:text-surface-100",
       "hover:shadow-[0_2px_0_0_rgba(0,0,0,0.1)]",
       "hover:-translate-y-0.5",

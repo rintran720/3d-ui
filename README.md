@@ -2,6 +2,8 @@
 
 A beautiful 3D-styled UI component library built with React and TailwindCSS. Inspired by shadcn/ui but with a unique 3D aesthetic featuring depth, shadows, and interactive press effects.
 
+🌐 **[Live Demo](https://3d-ui-tawny.vercel.app/)** | 📦 **[npm](https://www.npmjs.com/package/@votekio/3d-ui)** | 📖 **[GitHub](https://github.com/rintran720/3d-ui)**
+
 ## ✨ Features
 
 - 🎨 **3D Visual Effects** - Realistic depth and shadow effects
@@ -17,15 +19,47 @@ A beautiful 3D-styled UI component library built with React and TailwindCSS. Ins
 
 ## 📦 Components
 
-| Component         | Description                   |
-| ----------------- | ----------------------------- |
-| **Button**        | 3D buttons with press effects |
-| **Accordion**     | Collapsible sections          |
-| **Dialog**        | Modal dialogs with portal     |
-| **Alert**         | Alert messages with icons     |
-| **TextField**     | Text inputs with 3D styling   |
-| **TextArea**      | Multiline text inputs         |
-| **ThemeProvider** | Theme context provider        |
+| Component          | Description                             |
+| ------------------ | --------------------------------------- |
+| **Button**         | 3D buttons with press effects           |
+| **Accordion**      | Collapsible sections                    |
+| **Dialog**         | Modal dialogs with portal               |
+| **Alert**          | Alert messages with icons               |
+| **TextField**      | Text inputs with 3D styling             |
+| **TextArea**       | Multiline text inputs                   |
+| **Badge**          | Status badges and labels                |
+| **Card**           | Container cards with 3D effects         |
+| **Switch**         | Toggle switches                         |
+| **Checkbox**       | Checkbox inputs                         |
+| **Tabs**           | Tab navigation                          |
+| **Select**         | Dropdown select menus                   |
+| **Progress**       | Linear and circular progress indicators |
+| **Avatar**         | User avatars with status indicators     |
+| **Skeleton**       | Loading placeholders                    |
+| **Tooltip**        | Hover tooltips                          |
+| **Slider**         | Range sliders                           |
+| **RadioGroup**     | Radio button groups                     |
+| **Toast**          | Toast notifications                     |
+| **DropdownMenu**   | Context menus and dropdowns             |
+| **Separator**      | Visual dividers                         |
+| **Label**          | Form labels                             |
+| **Toggle**         | Toggle buttons                          |
+| **Popover**        | Popover dialogs                         |
+| **Sheet**          | Side sheets and drawers                 |
+| **Collapsible**    | Collapsible content sections            |
+| **HoverCard**      | Hover-triggered cards                   |
+| **ScrollArea**     | Custom scrollable areas                 |
+| **AspectRatio**    | Maintain aspect ratios                  |
+| **Breadcrumb**     | Navigation breadcrumbs                  |
+| **Command**        | Command palette and search              |
+| **Menubar**        | Application menu bars                   |
+| **NavigationMenu** | Navigation menus with dropdowns         |
+| **Table**          | Data tables                             |
+| **Pagination**     | Page navigation                         |
+| **Calendar**       | Date calendar picker                    |
+| **DatePicker**     | Date input with calendar                |
+| **Form**           | Form components and validation          |
+| **ThemeProvider**  | Theme context provider                  |
 
 ## 🚀 Getting Started
 
@@ -79,18 +113,18 @@ function App() {
 
 ## 🎨 Theme System (CSS-First)
 
-Thư viện sử dụng **CSS Variables** để theming, tối ưu cho **Server Side Rendering**.
+The library uses **CSS Variables** for theming, optimized for **Server Side Rendering**.
 
-### Cách 1: CSS Class (Khuyến nghị cho SSR)
+### Method 1: CSS Class (Recommended for SSR)
 
-Thêm class hoặc data attribute vào thẻ `<html>`:
+Add a class or data attribute to the `<html>` tag:
 
 ```html
-<!-- Sử dụng class -->
+<!-- Using class -->
 <html class="theme-dark">
-  <!-- Hoặc data attribute -->
+  <!-- Or data attribute -->
   <html data-theme="dark">
-    <!-- Hoặc data-theme với Next.js -->
+    <!-- Or data-theme with Next.js -->
     <html data-theme="ocean"></html>
   </html>
 </html>
@@ -104,15 +138,15 @@ Thêm class hoặc data attribute vào thẻ `<html>`:
 - `theme-sunset` / `data-theme="sunset"` - Orange/pink
 - `theme-forest` / `data-theme="forest"` - Green
 
-### Customize Colors với CSS
+### Customize Colors with CSS
 
 ```css
 /* Override primary color */
 :root {
-  --color-primary-500: #ef4444; /* Đỏ */
+  --color-primary-500: #ef4444; /* Red */
 }
 
-/* Hoặc dùng utility class */
+/* Or use utility class */
 <html class="theme-dark primary-rose">
 
 /* Available color classes */
@@ -146,9 +180,9 @@ Thêm class hoặc data attribute vào thẻ `<html>`:
 }
 ```
 
-### Cách 2: ThemeProvider (Client-side)
+### Method 2: ThemeProvider (Client-side)
 
-Nếu cần dynamic theme switching với JavaScript:
+If you need dynamic theme switching with JavaScript:
 
 ```tsx
 import { ThemeProvider, useTheme } from "@votekio/3d-ui";
@@ -360,6 +394,110 @@ import {
     <AccordionContent>Content for section 2</AccordionContent>
   </AccordionItem>
 </Accordion>;
+```
+
+### Calendar & DatePicker
+
+```tsx
+import { Calendar, DatePicker } from "@votekio/3d-ui";
+
+// Calendar
+<Calendar
+  value={selectedDate}
+  onChange={setSelectedDate}
+  showNavigation
+/>
+
+// DatePicker
+<DatePicker
+  label="Select Date"
+  value={date}
+  onChange={setDate}
+  placeholder="Pick a date"
+/>
+```
+
+### Form
+
+```tsx
+import {
+  Form,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  FormField,
+  TextField,
+  Button,
+} from "@votekio/3d-ui";
+
+<Form onSubmit={handleSubmit}>
+  <FormField name="email">
+    <FormItem>
+      <FormLabel>Email</FormLabel>
+      <TextField type="email" placeholder="you@example.com" />
+      <FormMessage />
+    </FormItem>
+  </FormField>
+  <Button type="submit">Submit</Button>
+</Form>;
+```
+
+### Pagination
+
+```tsx
+import { Pagination } from "@votekio/3d-ui";
+
+<Pagination
+  currentPage={1}
+  totalPages={10}
+  onPageChange={setPage}
+  showFirstLast
+  showPrevNext
+/>;
+```
+
+### Select
+
+```tsx
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@votekio/3d-ui";
+
+<Select value={value} onValueChange={setValue}>
+  <SelectTrigger>
+    <SelectValue placeholder="Select an option" />
+  </SelectTrigger>
+  <SelectContent>
+    <SelectItem value="option1">Option 1</SelectItem>
+    <SelectItem value="option2">Option 2</SelectItem>
+  </SelectContent>
+</Select>;
+```
+
+### DropdownMenu
+
+```tsx
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@votekio/3d-ui";
+
+<DropdownMenu>
+  <DropdownMenuTrigger>
+    <Button>Open Menu</Button>
+  </DropdownMenuTrigger>
+  <DropdownMenuContent>
+    <DropdownMenuItem>Profile</DropdownMenuItem>
+    <DropdownMenuItem>Settings</DropdownMenuItem>
+    <DropdownMenuItem>Logout</DropdownMenuItem>
+  </DropdownMenuContent>
+</DropdownMenu>;
 ```
 
 ## 🛠️ Development

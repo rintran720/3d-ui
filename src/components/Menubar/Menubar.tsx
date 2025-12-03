@@ -73,7 +73,7 @@ const MenubarTrigger = React.forwardRef<HTMLButtonElement, MenubarTriggerProps>(
       className={cn(
         "relative flex cursor-default select-none items-center rounded-md px-3 py-1.5 text-sm font-medium outline-none",
         "text-surface-300 transition-all duration-150",
-        // Hover state với 3D effect
+        // Hover state with 3D effect
         "hover:bg-surface-700/80 hover:text-surface-100",
         "hover:shadow-[0_2px_0_0_rgba(0,0,0,0.1)]",
         "hover:-translate-y-0.5",
@@ -102,10 +102,7 @@ export interface MenubarContentProps
   extends React.ComponentPropsWithoutRef<typeof DropdownMenuContent> {}
 
 const MenubarContent = React.forwardRef<HTMLDivElement, MenubarContentProps>(
-  (
-    { className, align = "start", sideOffset = 8, ...props },
-    ref
-  ) => (
+  ({ className, align = "start", sideOffset = 8, ...props }, ref) => (
     <DropdownMenuContent
       ref={ref}
       align={align}
