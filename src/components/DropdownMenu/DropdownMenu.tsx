@@ -79,7 +79,7 @@ export interface DropdownMenuTriggerProps
 const DropdownMenuTrigger = React.forwardRef<
   HTMLButtonElement,
   DropdownMenuTriggerProps
->(({ children, asChild, onClick, ...props }, ref) => {
+>(({ children, asChild, onClick, ...props }, _ref) => {
   const { open, setOpen, triggerRef } = useDropdownMenuContext();
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -128,73 +128,78 @@ export interface DropdownMenuContentProps
 const DropdownMenuContent = React.forwardRef<
   HTMLDivElement,
   DropdownMenuContentProps
->(({ className, align = "start", sideOffset = 4, children, ...props }, ref) => {
-  const { open, setOpen } = useDropdownMenuContext();
-  const contentRef = React.useRef<HTMLDivElement>(null);
+>(
+  (
+    { className, align = "start", sideOffset = 4, children, ...props },
+    _ref
+  ) => {
+    const { open, setOpen } = useDropdownMenuContext();
+    const contentRef = React.useRef<HTMLDivElement>(null);
 
-  // Close on click outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        contentRef.current &&
-        !contentRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setOpen(false);
-      }
-    };
-
-    if (open) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("keydown", handleEscape);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-        document.removeEventListener("keydown", handleEscape);
+    // Close on click outside
+    React.useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (
+          contentRef.current &&
+          !contentRef.current.contains(event.target as Node)
+        ) {
+          setOpen(false);
+        }
       };
-    }
-  }, [open, setOpen]);
 
-  if (!open) return null;
+      const handleEscape = (event: KeyboardEvent) => {
+        if (event.key === "Escape") {
+          setOpen(false);
+        }
+      };
 
-  // For center alignment, we need to use transform
-  // But we'll use a wrapper approach to avoid animation conflicts
-  const alignmentClasses = {
-    start: "left-0",
-    center: "", // handled via style
-    end: "right-0",
-  };
+      if (open) {
+        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("keydown", handleEscape);
+        return () => {
+          document.removeEventListener("mousedown", handleClickOutside);
+          document.removeEventListener("keydown", handleEscape);
+        };
+      }
+    }, [open, setOpen]);
 
-  const centerStyle =
-    align === "center" ? { left: "50%", transform: "translateX(-50%)" } : {};
+    if (!open) return null;
 
-  return (
-    <div
-      ref={contentRef}
-      role="menu"
-      className={cn(
-        "absolute z-50 top-full min-w-[180px] p-1",
-        "rounded-lg border border-surface-600",
-        "bg-surface-800",
-        // 3D effect
-        "shadow-[0_8px_16px_rgba(0,0,0,0.3),0_4px_0_0_rgba(0,0,0,0.2)]",
-        alignmentClasses[align],
-        className
-      )}
-      style={{
-        marginTop: sideOffset,
-        ...centerStyle,
-      }}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-});
+    // For center alignment, we need to use transform
+    // But we'll use a wrapper approach to avoid animation conflicts
+    const alignmentClasses = {
+      start: "left-0",
+      center: "", // handled via style
+      end: "right-0",
+    };
+
+    const centerStyle =
+      align === "center" ? { left: "50%", transform: "translateX(-50%)" } : {};
+
+    return (
+      <div
+        ref={contentRef}
+        role="menu"
+        className={cn(
+          "absolute z-50 top-full min-w-[180px] p-1",
+          "rounded-lg border border-surface-600",
+          "bg-surface-800",
+          // 3D effect
+          "shadow-[0_8px_16px_rgba(0,0,0,0.3),0_4px_0_0_rgba(0,0,0,0.2)]",
+          alignmentClasses[align],
+          className
+        )}
+        style={{
+          marginTop: sideOffset,
+          ...centerStyle,
+        }}
+        {...props}
+      >
+        {children}
+      </div>
+    );
+  }
+);
 
 DropdownMenuContent.displayName = "DropdownMenuContent";
 

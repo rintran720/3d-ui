@@ -12,7 +12,7 @@ export function cn(...inputs: ClassValue[]) {
  * Calculate 3D shadow color based on base color
  */
 export function get3DShadowColor(
-  baseColor: string,
+  _baseColor: string,
   opacity: number = 0.3
 ): string {
   // This is a simplified version - in production you'd parse the color

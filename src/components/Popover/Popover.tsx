@@ -77,7 +77,7 @@ export interface PopoverTriggerProps
 }
 
 const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
-  ({ children, asChild, onClick, ...props }, ref) => {
+  ({ children, asChild, onClick, ...props }, _ref) => {
     const { open, setOpen, triggerRef } = usePopoverContext();
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -139,7 +139,7 @@ const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
       children,
       ...props
     },
-    ref
+    _ref
   ) => {
     const { open, setOpen, triggerRef } = usePopoverContext();
     const contentRef = React.useRef<HTMLDivElement>(null);

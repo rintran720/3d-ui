@@ -153,7 +153,7 @@ export function generatePalette(baseColor: string): ColorPalette {
     palette[shade] = rgbToHex(r, g, b);
   }
 
-  return palette as ColorPalette;
+    return palette as unknown as ColorPalette;
 }
 
 /**

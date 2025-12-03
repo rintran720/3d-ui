@@ -484,7 +484,7 @@ const DialogFooter = React.forwardRef<HTMLDivElement, DialogFooterProps>(
         className={cn(
           "px-6 pb-6 pt-4",
           "flex items-center justify-end gap-3",
-          variant === "bordered" && "border-t border-surface-700/50",
+          variant === "default" && "border-t border-surface-700/50",
           className
         )}
         {...props}

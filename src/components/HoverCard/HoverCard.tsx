@@ -15,8 +15,8 @@ interface HoverCardContextValue {
   openDelay: number;
   closeDelay: number;
   // Shared timeout refs for coordinated hover behavior
-  openTimeoutRef: React.MutableRefObject<NodeJS.Timeout | undefined>;
-  closeTimeoutRef: React.MutableRefObject<NodeJS.Timeout | undefined>;
+  openTimeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | undefined>;
+  closeTimeoutRef: React.MutableRefObject<ReturnType<typeof setTimeout> | undefined>;
   handleOpen: () => void;
   handleClose: () => void;
 }
@@ -61,8 +61,8 @@ const HoverCard: React.FC<HoverCardProps> = ({
 }) => {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
   const triggerRef = React.useRef<HTMLElement>(null);
-  const openTimeoutRef = React.useRef<NodeJS.Timeout>();
-  const closeTimeoutRef = React.useRef<NodeJS.Timeout>();
+  const openTimeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
+  const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
@@ -133,7 +133,7 @@ export interface HoverCardTriggerProps
 }
 
 const HoverCardTrigger = React.forwardRef<HTMLElement, HoverCardTriggerProps>(
-  ({ children, asChild, ...props }, ref) => {
+  ({ children, asChild, ...props }, _ref) => {
     const { triggerRef, handleOpen, handleClose } = useHoverCardContext();
 
     if (asChild && React.isValidElement(children)) {

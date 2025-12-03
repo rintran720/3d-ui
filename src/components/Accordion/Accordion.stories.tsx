@@ -127,7 +127,11 @@ export const Glass: Story = {
 // Multiple items can be expanded
 export const MultipleExpanded: Story = {
   render: () => (
-    <Accordion variant="default" type="multiple" defaultValue={["item-1", "item-3"]}>
+    <Accordion
+      variant="default"
+      type="multiple"
+      defaultValue={["item-1", "item-3"]}
+    >
       {faqItems.map((item) => (
         <AccordionItem key={item.value} value={item.value}>
           <AccordionTrigger>{item.question}</AccordionTrigger>
@@ -162,7 +166,11 @@ export const AllVariants: Story = {
 
       <div>
         <h3 className="text-sm font-medium text-surface-400 mb-3">Bordered</h3>
-        <Accordion variant="bordered" type="single" defaultValue={["v2-item-1"]}>
+        <Accordion
+          variant="bordered"
+          type="single"
+          defaultValue={["v2-item-1"]}
+        >
           <AccordionItem value="v2-item-1">
             <AccordionTrigger>Bordered accordion item</AccordionTrigger>
             <AccordionContent>
@@ -180,7 +188,11 @@ export const AllVariants: Story = {
 
       <div>
         <h3 className="text-sm font-medium text-surface-400 mb-3">Elevated</h3>
-        <Accordion variant="elevated" type="single" defaultValue={["v3-item-1"]}>
+        <Accordion
+          variant="elevated"
+          type="single"
+          defaultValue={["v3-item-1"]}
+        >
           <AccordionItem value="v3-item-1">
             <AccordionTrigger>Elevated accordion item</AccordionTrigger>
             <AccordionContent>
@@ -269,7 +281,9 @@ export const CustomIcon: Story = {
     <Accordion variant="elevated" type="single">
       {faqItems.slice(0, 3).map((item) => (
         <AccordionItem key={item.value} value={item.value}>
-          <AccordionTrigger icon={<PlusIcon />}>{item.question}</AccordionTrigger>
+          <AccordionTrigger icon={<PlusIcon />}>
+            {item.question}
+          </AccordionTrigger>
           <AccordionContent>{item.answer}</AccordionContent>
         </AccordionItem>
       ))}
@@ -297,7 +311,7 @@ export const RichContent: Story = {
         <AccordionTrigger>📦 Installation</AccordionTrigger>
         <AccordionContent>
           <pre className="bg-surface-900 rounded-lg p-3 text-sm overflow-x-auto">
-            <code className="text-accent-400">npm install @votek/3d-ui</code>
+            <code className="text-accent-400">npm install @votekio/3d-ui</code>
           </pre>
         </AccordionContent>
       </AccordionItem>
@@ -306,7 +320,7 @@ export const RichContent: Story = {
         <AccordionContent>
           <pre className="bg-surface-900 rounded-lg p-3 text-sm overflow-x-auto">
             <code className="text-primary-300">
-{`import { Accordion } from '@votek/3d-ui';
+              {`import { Accordion } from '@votekio/3d-ui';
 
 <Accordion>
   <AccordionItem value="1">
@@ -328,7 +342,9 @@ export const InteractiveDemo: Story = {
     <div className="p-8 rounded-2xl bg-surface-900/50 backdrop-blur-sm border border-surface-700">
       <div className="text-center mb-6">
         <h2 className="text-2xl font-bold text-white mb-2">3D Accordion</h2>
-        <p className="text-surface-400">Expand items to see smooth animations</p>
+        <p className="text-surface-400">
+          Expand items to see smooth animations
+        </p>
       </div>
 
       <Accordion variant="elevated" type="single" defaultValue={["demo-1"]}>
@@ -343,8 +359,9 @@ export const InteractiveDemo: Story = {
           </AccordionTrigger>
           <AccordionContent>
             <p className="pl-11">
-              Every component is crafted with attention to detail. The 3D effects
-              create depth and make the interface feel tangible and interactive.
+              Every component is crafted with attention to detail. The 3D
+              effects create depth and make the interface feel tangible and
+              interactive.
             </p>
           </AccordionContent>
         </AccordionItem>
@@ -360,8 +377,8 @@ export const InteractiveDemo: Story = {
           </AccordionTrigger>
           <AccordionContent>
             <p className="pl-11">
-              All transitions are carefully tuned for the perfect feel. Expand and
-              collapse animations are butter smooth at 60fps.
+              All transitions are carefully tuned for the perfect feel. Expand
+              and collapse animations are butter smooth at 60fps.
             </p>
           </AccordionContent>
         </AccordionItem>
@@ -389,4 +406,3 @@ export const InteractiveDemo: Story = {
     backgrounds: { default: "gradient" },
   },
 };
-

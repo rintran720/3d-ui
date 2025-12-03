@@ -159,19 +159,12 @@ const isToday = (date: Date): boolean => {
   return isSameDay(date, new Date());
 };
 
-const isSameMonth = (date1: Date, date2: Date): boolean => {
-  return (
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth()
-  );
-};
-
 // ============================================================================
 // Calendar Root
 // ============================================================================
 
 export interface CalendarProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange">,
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue">,
     VariantProps<typeof calendarVariants> {
   /** Selected date */
   value?: Date;

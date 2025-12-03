@@ -505,21 +505,11 @@ export type {
   PaginationItemProps,
 } from "./components/Pagination";
 
-export {
-  Calendar,
-  calendarVariants,
-} from "./components/Calendar";
-export type {
-  CalendarProps,
-} from "./components/Calendar";
+export { Calendar, calendarVariants } from "./components/Calendar";
+export type { CalendarProps } from "./components/Calendar";
 
-export {
-  DatePicker,
-  datePickerVariants,
-} from "./components/DatePicker";
-export type {
-  DatePickerProps,
-} from "./components/DatePicker";
+export { DatePicker, datePickerVariants } from "./components/DatePicker";
+export type { DatePickerProps } from "./components/DatePicker";
 
 export {
   Form,
@@ -557,4 +547,4 @@ export {
 export { cn } from "./lib/utils";
 
 // Styles - consumers should import this in their app
-// import "@votek/3d-ui/dist/styles.css"
+// import "@votekio/3d-ui/dist/styles.css"

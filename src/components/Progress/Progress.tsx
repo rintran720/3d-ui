@@ -58,7 +58,7 @@ const progressIndicatorVariants = cva(
 );
 
 export interface ProgressProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "color">,
     VariantProps<typeof progressVariants>,
     VariantProps<typeof progressIndicatorVariants> {
   /** The progress value (0-100) */
@@ -104,7 +104,9 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
         {showLabel && (
           <div className="flex justify-between mb-1">
             <span className="text-xs text-surface-400">Progress</span>
-            <span className="text-xs font-medium text-surface-200">{label}</span>
+            <span className="text-xs font-medium text-surface-200">
+              {label}
+            </span>
           </div>
         )}
         <div
@@ -119,7 +121,8 @@ const Progress = React.forwardRef<HTMLDivElement, ProgressProps>(
           <div
             className={cn(
               progressIndicatorVariants({ color, animated }),
-              indeterminate && "w-1/3 animate-[progress-indeterminate_1.5s_ease-in-out_infinite]"
+              indeterminate &&
+                "w-1/3 animate-[progress-indeterminate_1.5s_ease-in-out_infinite]"
             )}
             style={indeterminate ? undefined : { width: `${percentage}%` }}
           />
@@ -136,7 +139,7 @@ Progress.displayName = "Progress";
 // ============================================================================
 
 export interface CircularProgressProps
-  extends React.SVGAttributes<SVGSVGElement>,
+  extends Omit<React.SVGAttributes<SVGSVGElement>, "color">,
     VariantProps<typeof progressIndicatorVariants> {
   /** The progress value (0-100) */
   value?: number;
@@ -177,7 +180,7 @@ const CircularProgress = React.forwardRef<SVGSVGElement, CircularProgressProps>(
     const percentage = Math.min(Math.max(value, 0), 100);
     const strokeDashoffset = circumference - (percentage / 100) * circumference;
 
-    const colorMap = {
+    const colorMap: Record<NonNullable<typeof color>, string> = {
       primary: "stroke-primary-500",
       secondary: "stroke-secondary-500",
       accent: "stroke-accent-500",
@@ -193,10 +196,7 @@ const CircularProgress = React.forwardRef<SVGSVGElement, CircularProgressProps>(
           width={svgSize}
           height={svgSize}
           viewBox={`0 0 ${svgSize} ${svgSize}`}
-          className={cn(
-            indeterminate && "animate-spin",
-            className
-          )}
+          className={cn(indeterminate && "animate-spin", className)}
           {...props}
         >
           {/* Background circle */}
@@ -214,13 +214,22 @@ const CircularProgress = React.forwardRef<SVGSVGElement, CircularProgressProps>(
             cy={svgSize / 2}
             r={radius}
             fill="none"
-            className={cn(colorMap[color ?? "primary"], "drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]")}
+            className={cn(
+              colorMap[color ?? "primary"] as string,
+              "drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]"
+            )}
             strokeWidth={strokeWidth}
             strokeLinecap="round"
             strokeDasharray={circumference}
-            strokeDashoffset={indeterminate ? circumference * 0.75 : strokeDashoffset}
+            strokeDashoffset={
+              indeterminate ? circumference * 0.75 : strokeDashoffset
+            }
             transform={`rotate(-90 ${svgSize / 2} ${svgSize / 2})`}
-            style={{ transition: indeterminate ? undefined : "stroke-dashoffset 0.5s ease-out" }}
+            style={{
+              transition: indeterminate
+                ? undefined
+                : "stroke-dashoffset 0.5s ease-out",
+            }}
           />
         </svg>
         {showLabel && !indeterminate && (
@@ -235,5 +244,9 @@ const CircularProgress = React.forwardRef<SVGSVGElement, CircularProgressProps>(
 
 CircularProgress.displayName = "CircularProgress";
 
-export { Progress, CircularProgress, progressVariants, progressIndicatorVariants };
-
+export {
+  Progress,
+  CircularProgress,
+  progressVariants,
+  progressIndicatorVariants,
+};

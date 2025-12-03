@@ -400,10 +400,13 @@ interface ThemeContextValue {
   availableThemes: string[];
 }
 
-const ThemeContext = React.createContext<ThemeContextValue | undefined>(undefined);
+const ThemeContext = React.createContext<ThemeContextValue | undefined>(
+  undefined
+);
 
 // Check if we're in browser environment
-const isBrowser = typeof window !== "undefined" && typeof document !== "undefined";
+const isBrowser =
+  typeof window !== "undefined" && typeof document !== "undefined";
 
 // Convert theme colors to CSS variables
 function applyThemeToDOM(theme: Theme) {
@@ -415,7 +418,19 @@ function applyThemeToDOM(theme: Theme) {
 
   // Apply color palette
   const colorKeys = ["primary", "secondary", "accent", "surface"] as const;
-  const shades = ["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"] as const;
+  const shades = [
+    "50",
+    "100",
+    "200",
+    "300",
+    "400",
+    "500",
+    "600",
+    "700",
+    "800",
+    "900",
+    "950",
+  ] as const;
 
   colorKeys.forEach((colorKey) => {
     shades.forEach((shade) => {
@@ -452,7 +467,7 @@ export interface ThemeProviderProps {
 
 export function ThemeProvider({
   defaultTheme = "dark",
-  storageKey = "votek-3d-ui-theme",
+  storageKey = "votekio-3d-ui-theme",
   customThemes = {},
   children,
 }: ThemeProviderProps) {
@@ -615,4 +630,3 @@ export {
   rgbToHex,
 } from "../../lib/color-utils";
 export type { ColorPalette, PresetColorName } from "../../lib/color-utils";
-

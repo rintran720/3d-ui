@@ -1,4 +1,4 @@
-# @votek/3d-ui
+# @votekio/3d-ui
 
 A beautiful 3D-styled UI component library built with React and TailwindCSS. Inspired by shadcn/ui but with a unique 3D aesthetic featuring depth, shadows, and interactive press effects.
 
@@ -32,11 +32,11 @@ A beautiful 3D-styled UI component library built with React and TailwindCSS. Ins
 ### Installation
 
 ```bash
-npm install @votek/3d-ui
+npm install @votekio/3d-ui
 # or
-yarn add @votek/3d-ui
+yarn add @votekio/3d-ui
 # or
-pnpm add @votek/3d-ui
+pnpm add @votekio/3d-ui
 ```
 
 ### Setup TailwindCSS
@@ -47,7 +47,7 @@ Add the library to your `tailwind.config.js` content paths:
 module.exports = {
   content: [
     // ... your paths
-    "./node_modules/@votek/3d-ui/dist/**/*.{js,ts,jsx,tsx}",
+    "./node_modules/@votekio/3d-ui/dist/**/*.{js,ts,jsx,tsx}",
   ],
   // ... rest of config
 };
@@ -58,13 +58,13 @@ module.exports = {
 Import the library styles in your app:
 
 ```tsx
-import "@votek/3d-ui/dist/styles.css";
+import "@votekio/3d-ui/dist/styles.css";
 ```
 
 ### Use Components
 
 ```tsx
-import { Button, ThemeProvider } from "@votek/3d-ui";
+import { Button, ThemeProvider } from "@votekio/3d-ui";
 
 function App() {
   return (
@@ -151,7 +151,7 @@ Thêm class hoặc data attribute vào thẻ `<html>`:
 Nếu cần dynamic theme switching với JavaScript:
 
 ```tsx
-import { ThemeProvider, useTheme } from "@votek/3d-ui";
+import { ThemeProvider, useTheme } from "@votekio/3d-ui";
 
 function App() {
   return (
@@ -190,7 +190,7 @@ import {
   useLocalStorage,
   useWindowSize,
   usePrefersDarkMode,
-} from "@votek/3d-ui";
+} from "@votekio/3d-ui";
 
 // Check environment
 if (isBrowser) {
@@ -222,7 +222,7 @@ const prefersDark = usePrefersDarkMode();
 // app/providers.tsx
 "use client";
 
-import { ThemeProvider } from "@votek/3d-ui";
+import { ThemeProvider } from "@votekio/3d-ui";
 
 export function Providers({ children }) {
   return <ThemeProvider defaultTheme="dark">{children}</ThemeProvider>;
@@ -234,7 +234,7 @@ export function Providers({ children }) {
 ### Button
 
 ```tsx
-import { Button } from "@votek/3d-ui";
+import { Button } from "@votekio/3d-ui";
 
 // Variants
 <Button variant="primary">Primary</Button>
@@ -258,7 +258,7 @@ import { Button } from "@votek/3d-ui";
 ### TextField
 
 ```tsx
-import { TextField, TextArea } from "@votek/3d-ui";
+import { TextField, TextArea } from "@votekio/3d-ui";
 
 <TextField
   label="Email"
@@ -293,7 +293,7 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-} from "@votek/3d-ui";
+} from "@votekio/3d-ui";
 
 <Dialog>
   <DialogTrigger>
@@ -317,7 +317,7 @@ import {
 ### Alert
 
 ```tsx
-import { Alert, AlertTitle, AlertDescription } from "@votek/3d-ui";
+import { Alert, AlertTitle, AlertDescription } from "@votekio/3d-ui";
 
 <Alert variant="info">
   <AlertTitle>Information</AlertTitle>
@@ -348,7 +348,7 @@ import {
   AccordionItem,
   AccordionTrigger,
   AccordionContent,
-} from "@votek/3d-ui";
+} from "@votekio/3d-ui";
 
 <Accordion type="single" collapsible>
   <AccordionItem value="item-1">
@@ -419,6 +419,74 @@ npm run build:storybook
 # You can deploy this folder to any static hosting service
 ```
 
+### Publish to npm
+
+The library is configured to be published to npm.
+
+#### Prerequisites
+
+1. Create an npm account at [npmjs.com](https://www.npmjs.com/)
+2. Login to npm via CLI:
+   ```bash
+   npm login
+   ```
+
+#### Build & Publish
+
+```bash
+# Build the library (this will also copy CSS files)
+npm run build
+
+# Verify the build output
+ls dist/
+
+# Publish to npm (this will run prepublishOnly script automatically)
+npm publish
+
+# For scoped packages, publish publicly:
+npm publish --access public
+```
+
+#### Version Management
+
+```bash
+# Update version before publishing
+npm version patch   # 0.1.0 -> 0.1.1
+npm version minor   # 0.1.0 -> 0.2.0
+npm version major   # 0.1.0 -> 1.0.0
+
+# Then publish
+npm publish --access public
+```
+
+#### What Gets Published
+
+The following files are included in the npm package:
+
+- `dist/` - Built JavaScript, TypeScript definitions, and CSS files
+- `README.md` - Documentation
+- `package.json` - Package metadata
+
+The following are excluded (via `.npmignore`):
+
+- Source files (`src/`)
+- Storybook files
+- Development configs
+- Tests
+
+#### After Publishing
+
+Users can install and use the package:
+
+```bash
+npm install @votekio/3d-ui
+```
+
+```tsx
+import { Button } from "@votekio/3d-ui";
+import "@votekio/3d-ui/styles/globals.css";
+```
+
 ## 📄 License
 
-MIT © Votek
+MIT © votekio

@@ -65,8 +65,12 @@ export const Both: Story = {
           Scrollable in both directions
         </h4>
         {Array.from({ length: 30 }).map((_, i) => (
-          <p key={i} className="text-sm text-surface-400 whitespace-nowrap py-1">
-            This is a very long line of text that will cause horizontal scrolling. Line {i + 1}
+          <p
+            key={i}
+            className="text-sm text-surface-400 whitespace-nowrap py-1"
+          >
+            This is a very long line of text that will cause horizontal
+            scrolling. Line {i + 1}
           </p>
         ))}
       </div>
@@ -110,16 +114,41 @@ export const ChatMessages: Story = {
   render: () => {
     const messages = [
       { id: 1, sender: "John", text: "Hey, how are you?", isMe: false },
-      { id: 2, sender: "Me", text: "I'm good! Working on the new UI.", isMe: true },
+      {
+        id: 2,
+        sender: "Me",
+        text: "I'm good! Working on the new UI.",
+        isMe: true,
+      },
       { id: 3, sender: "John", text: "Nice! How's it going?", isMe: false },
-      { id: 4, sender: "Me", text: "Pretty well. Just added scrollable areas.", isMe: true },
+      {
+        id: 4,
+        sender: "Me",
+        text: "Pretty well. Just added scrollable areas.",
+        isMe: true,
+      },
       { id: 5, sender: "John", text: "That sounds cool!", isMe: false },
-      { id: 6, sender: "Me", text: "Yeah, the 3D effects look great.", isMe: true },
+      {
+        id: 6,
+        sender: "Me",
+        text: "Yeah, the 3D effects look great.",
+        isMe: true,
+      },
       { id: 7, sender: "John", text: "Can't wait to see it.", isMe: false },
-      { id: 8, sender: "Me", text: "I'll send you a preview soon.", isMe: true },
+      {
+        id: 8,
+        sender: "Me",
+        text: "I'll send you a preview soon.",
+        isMe: true,
+      },
       { id: 9, sender: "John", text: "Awesome! 🎉", isMe: false },
       { id: 10, sender: "Me", text: "Thanks for the support!", isMe: true },
-      { id: 11, sender: "John", text: "Always! Keep up the great work.", isMe: false },
+      {
+        id: 11,
+        sender: "John",
+        text: "Always! Keep up the great work.",
+        isMe: false,
+      },
       { id: 12, sender: "Me", text: "Will do! Talk soon.", isMe: true },
     ];
 
@@ -167,7 +196,7 @@ export const CodeBlock: Story = {
       className="h-64 w-[500px] rounded-lg border border-surface-700 bg-surface-900 font-mono text-sm shadow-3d"
     >
       <pre className="p-4 text-surface-300">
-        <code>{`import { ScrollArea } from "@votek/3d-ui";
+        <code>{`import { ScrollArea } from "@votekio/3d-ui";
 
 export function MyComponent() {
   const items = Array.from({ length: 100 }).map((_, i) => ({
@@ -202,10 +231,7 @@ export const ImageGallery: Story = {
     >
       <div className="flex gap-4 p-4">
         {Array.from({ length: 10 }).map((_, i) => (
-          <div
-            key={i}
-            className="flex-shrink-0 w-48 space-y-2"
-          >
+          <div key={i} className="flex-shrink-0 w-48 space-y-2">
             <div className="h-32 rounded-lg bg-gradient-to-br from-primary-600/30 to-accent-600/30 flex items-center justify-center text-surface-400">
               Image {i + 1}
             </div>
@@ -217,4 +243,3 @@ export const ImageGallery: Story = {
     </ScrollArea>
   ),
 };
-

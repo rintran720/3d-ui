@@ -103,13 +103,12 @@ export interface MenubarContentProps
 
 const MenubarContent = React.forwardRef<HTMLDivElement, MenubarContentProps>(
   (
-    { className, align = "start", alignOffset = -4, sideOffset = 8, ...props },
+    { className, align = "start", sideOffset = 8, ...props },
     ref
   ) => (
     <DropdownMenuContent
       ref={ref}
       align={align}
-      alignOffset={alignOffset}
       sideOffset={sideOffset}
       className={cn(className)}
       {...props}

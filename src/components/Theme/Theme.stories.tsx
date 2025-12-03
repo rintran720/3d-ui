@@ -4,13 +4,13 @@ import { Button } from "../Button";
 import { TextField } from "../TextField";
 import { Alert, AlertTitle, AlertDescription } from "../Alert";
 import * as React from "react";
-import { 
-  generatePalette, 
-  setPrimaryColor, 
-  setSecondaryColor, 
+import {
+  generatePalette,
+  setPrimaryColor,
+  setSecondaryColor,
   setAccentColor,
   presetColors,
-  type PresetColorName 
+  type PresetColorName,
 } from "../../lib/color-utils";
 
 // Theme Preview Card
@@ -32,7 +32,10 @@ function ThemePreviewCard({ themeName }: { themeName: string }) {
           style={{ backgroundColor: theme.colors.primary[500] }}
         />
         <div>
-          <div className="font-semibold" style={{ color: theme.colors.surface[100] }}>
+          <div
+            className="font-semibold"
+            style={{ color: theme.colors.surface[100] }}
+          >
             {theme.name}
           </div>
           <div className="text-xs" style={{ color: theme.colors.surface[400] }}>
@@ -42,9 +45,15 @@ function ThemePreviewCard({ themeName }: { themeName: string }) {
       </div>
       <div className="flex gap-1">
         {["primary", "secondary", "accent"].map((colorKey) => (
-          <div key={colorKey} className="flex-1 h-2 rounded-full" style={{
-            backgroundColor: theme.colors[colorKey as keyof typeof theme.colors][500] as string,
-          }} />
+          <div
+            key={colorKey}
+            className="flex-1 h-2 rounded-full"
+            style={{
+              backgroundColor: theme.colors[
+                colorKey as keyof typeof theme.colors
+              ][500] as string,
+            }}
+          />
         ))}
       </div>
     </div>
@@ -65,9 +74,10 @@ function ThemeSwitcher() {
             onClick={() => setTheme(name)}
             className={`
               px-4 py-2 rounded-lg font-medium transition-all
-              ${themeName === name
-                ? "bg-primary-500 text-white shadow-[0_4px_0_0_rgba(20,111,225,0.5)]"
-                : "bg-surface-800 text-surface-300 hover:bg-surface-700"
+              ${
+                themeName === name
+                  ? "bg-primary-500 text-white shadow-[0_4px_0_0_rgba(20,111,225,0.5)]"
+                  : "bg-surface-800 text-surface-300 hover:bg-surface-700"
               }
             `}
           >
@@ -85,34 +95,60 @@ function ThemeSwitcher() {
 
       {/* Color Palette */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-surface-100">Color Palette</h3>
-        
-        {(["primary", "secondary", "accent", "surface"] as const).map((colorKey) => (
-          <div key={colorKey} className="space-y-2">
-            <div className="text-sm font-medium text-surface-300 capitalize">{colorKey}</div>
-            <div className="flex gap-1 rounded-lg overflow-hidden">
-              {(["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"] as const).map((shade) => (
-                <div
-                  key={shade}
-                  className="flex-1 h-10 flex items-end justify-center pb-1"
-                  style={{ backgroundColor: theme.colors[colorKey][shade] }}
-                >
-                  <span className={`text-[10px] font-mono ${
-                    parseInt(shade) > 400 ? "text-white/60" : "text-black/60"
-                  }`}>
-                    {shade}
-                  </span>
-                </div>
-              ))}
+        <h3 className="text-lg font-semibold text-surface-100">
+          Color Palette
+        </h3>
+
+        {(["primary", "secondary", "accent", "surface"] as const).map(
+          (colorKey) => (
+            <div key={colorKey} className="space-y-2">
+              <div className="text-sm font-medium text-surface-300 capitalize">
+                {colorKey}
+              </div>
+              <div className="flex gap-1 rounded-lg overflow-hidden">
+                {(
+                  [
+                    "50",
+                    "100",
+                    "200",
+                    "300",
+                    "400",
+                    "500",
+                    "600",
+                    "700",
+                    "800",
+                    "900",
+                    "950",
+                  ] as const
+                ).map((shade) => (
+                  <div
+                    key={shade}
+                    className="flex-1 h-10 flex items-end justify-center pb-1"
+                    style={{ backgroundColor: theme.colors[colorKey][shade] }}
+                  >
+                    <span
+                      className={`text-[10px] font-mono ${
+                        parseInt(shade) > 400
+                          ? "text-white/60"
+                          : "text-black/60"
+                      }`}
+                    >
+                      {shade}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          )
+        )}
       </div>
 
       {/* Component Preview */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-surface-100">Components Preview</h3>
-        
+        <h3 className="text-lg font-semibold text-surface-100">
+          Components Preview
+        </h3>
+
         <div className="grid grid-cols-2 gap-4">
           <Button variant="primary">Primary Button</Button>
           <Button variant="secondary">Secondary</Button>
@@ -188,7 +224,9 @@ export const DarkTheme: Story = {
   render: () => {
     const DarkDemo = () => {
       const { setTheme } = useTheme();
-      React.useEffect(() => { setTheme("dark"); }, [setTheme]);
+      React.useEffect(() => {
+        setTheme("dark");
+      }, [setTheme]);
       return (
         <div className="w-[600px] p-6 rounded-2xl bg-surface-900 border border-surface-700">
           <ThemeSwitcher />
@@ -204,7 +242,9 @@ export const LightTheme: Story = {
   render: () => {
     const LightDemo = () => {
       const { setTheme } = useTheme();
-      React.useEffect(() => { setTheme("light"); }, [setTheme]);
+      React.useEffect(() => {
+        setTheme("light");
+      }, [setTheme]);
       return (
         <div className="w-[600px] p-6 rounded-2xl bg-surface-900 border border-surface-700">
           <ThemeSwitcher />
@@ -220,7 +260,9 @@ export const OceanTheme: Story = {
   render: () => {
     const OceanDemo = () => {
       const { setTheme } = useTheme();
-      React.useEffect(() => { setTheme("ocean"); }, [setTheme]);
+      React.useEffect(() => {
+        setTheme("ocean");
+      }, [setTheme]);
       return (
         <div className="w-[600px] p-6 rounded-2xl bg-surface-900 border border-surface-700">
           <ThemeSwitcher />
@@ -236,7 +278,9 @@ export const SunsetTheme: Story = {
   render: () => {
     const SunsetDemo = () => {
       const { setTheme } = useTheme();
-      React.useEffect(() => { setTheme("sunset"); }, [setTheme]);
+      React.useEffect(() => {
+        setTheme("sunset");
+      }, [setTheme]);
       return (
         <div className="w-[600px] p-6 rounded-2xl bg-surface-900 border border-surface-700">
           <ThemeSwitcher />
@@ -252,7 +296,9 @@ export const ForestTheme: Story = {
   render: () => {
     const ForestDemo = () => {
       const { setTheme } = useTheme();
-      React.useEffect(() => { setTheme("forest"); }, [setTheme]);
+      React.useEffect(() => {
+        setTheme("forest");
+      }, [setTheme]);
       return (
         <div className="w-[600px] p-6 rounded-2xl bg-surface-900 border border-surface-700">
           <ThemeSwitcher />
@@ -270,8 +316,8 @@ export const UsageExample: Story = {
       <div className="p-4 rounded-xl bg-surface-800 border border-surface-700">
         <h3 className="text-lg font-semibold text-surface-100 mb-4">Usage</h3>
         <pre className="text-sm text-surface-300 bg-surface-900 p-4 rounded-lg overflow-x-auto">
-{`// 1. Wrap your app with ThemeProvider
-import { ThemeProvider } from '@votek/3d-ui';
+          {`// 1. Wrap your app with ThemeProvider
+import { ThemeProvider } from '@votekio/3d-ui';
 
 function App() {
   return (
@@ -282,7 +328,7 @@ function App() {
 }
 
 // 2. Use the useTheme hook to access/change theme
-import { useTheme } from '@votek/3d-ui';
+import { useTheme } from '@votekio/3d-ui';
 
 function ThemeSwitcher() {
   const { theme, themeName, setTheme, availableThemes } = useTheme();
@@ -320,7 +366,9 @@ function ColorCustomizer() {
   const [primaryColor, setPrimaryColorState] = React.useState("#3b82f6");
   const [secondaryColor, setSecondaryColorState] = React.useState("#a855f7");
   const [accentColor, setAccentColorState] = React.useState("#10b981");
-  const [generatedPalette, setGeneratedPalette] = React.useState(generatePalette("#3b82f6"));
+  const [generatedPalette, setGeneratedPalette] = React.useState(
+    generatePalette("#3b82f6")
+  );
 
   const handlePrimaryChange = (color: string) => {
     setPrimaryColorState(color);
@@ -342,12 +390,16 @@ function ColorCustomizer() {
     <div className="space-y-6">
       {/* Color Pickers */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-surface-100">🎨 Color Customizer</h3>
-        
+        <h3 className="text-lg font-semibold text-surface-100">
+          🎨 Color Customizer
+        </h3>
+
         <div className="grid grid-cols-3 gap-4">
           {/* Primary Color */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-surface-300">Primary</label>
+            <label className="text-sm font-medium text-surface-300">
+              Primary
+            </label>
             <div className="flex gap-2">
               <input
                 type="color"
@@ -366,7 +418,9 @@ function ColorCustomizer() {
 
           {/* Secondary Color */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-surface-300">Secondary</label>
+            <label className="text-sm font-medium text-surface-300">
+              Secondary
+            </label>
             <div className="flex gap-2">
               <input
                 type="color"
@@ -385,7 +439,9 @@ function ColorCustomizer() {
 
           {/* Accent Color */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-surface-300">Accent</label>
+            <label className="text-sm font-medium text-surface-300">
+              Accent
+            </label>
             <div className="flex gap-2">
               <input
                 type="color"
@@ -426,17 +482,35 @@ function ColorCustomizer() {
 
       {/* Generated Palette Preview */}
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-surface-300">Generated Palette</h4>
+        <h4 className="text-sm font-medium text-surface-300">
+          Generated Palette
+        </h4>
         <div className="flex gap-1 rounded-lg overflow-hidden">
-          {(["50", "100", "200", "300", "400", "500", "600", "700", "800", "900", "950"] as const).map((shade) => (
+          {(
+            [
+              "50",
+              "100",
+              "200",
+              "300",
+              "400",
+              "500",
+              "600",
+              "700",
+              "800",
+              "900",
+              "950",
+            ] as const
+          ).map((shade) => (
             <div
               key={shade}
               className="flex-1 h-12 flex items-end justify-center pb-1"
               style={{ backgroundColor: generatedPalette[shade] }}
             >
-              <span className={`text-[10px] font-mono ${
-                parseInt(shade) > 400 ? "text-white/60" : "text-black/60"
-              }`}>
+              <span
+                className={`text-[10px] font-mono ${
+                  parseInt(shade) > 400 ? "text-white/60" : "text-black/60"
+                }`}
+              >
                 {shade}
               </span>
             </div>
@@ -447,7 +521,7 @@ function ColorCustomizer() {
       {/* Live Component Preview */}
       <div className="space-y-4 pt-4 border-t border-surface-700">
         <h4 className="text-sm font-medium text-surface-300">Live Preview</h4>
-        
+
         <div className="flex flex-wrap gap-3">
           <Button variant="primary">Primary</Button>
           <Button variant="secondary">Secondary</Button>
@@ -477,7 +551,7 @@ function ColorCustomizer() {
       <div className="space-y-3 pt-4 border-t border-surface-700">
         <h4 className="text-sm font-medium text-surface-300">Generated CSS</h4>
         <pre className="text-xs text-surface-300 bg-surface-900 p-4 rounded-lg overflow-x-auto">
-{`:root {
+          {`:root {
 ${Object.entries(generatedPalette)
   .map(([shade, color]) => `  --color-primary-${shade}: ${color};`)
   .join("\n")}
@@ -502,15 +576,17 @@ export const ColorUtilsExample: Story = {
   render: () => (
     <div className="w-[600px] p-6 rounded-2xl bg-surface-900 border border-surface-700">
       <div className="p-4 rounded-xl bg-surface-800 border border-surface-700">
-        <h3 className="text-lg font-semibold text-surface-100 mb-4">Color Utilities</h3>
+        <h3 className="text-lg font-semibold text-surface-100 mb-4">
+          Color Utilities
+        </h3>
         <pre className="text-sm text-surface-300 bg-surface-900 p-4 rounded-lg overflow-x-auto">
-{`import { 
+          {`import { 
   generatePalette, 
   setPrimaryColor,
   setSecondaryColor,
   setAccentColor,
   presetColors 
-} from '@votek/3d-ui';
+} from '@votekio/3d-ui';
 
 // Generate full palette from a single color
 const palette = generatePalette('#3b82f6');
@@ -542,4 +618,3 @@ setPrimaryColor(presetColors.emerald);
     </div>
   ),
 };
-

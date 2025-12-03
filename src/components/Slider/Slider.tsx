@@ -83,7 +83,7 @@ const sliderRangeVariants = cva(
 // ============================================================================
 
 export interface SliderProps
-  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange">,
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange" | "defaultValue">,
     VariantProps<typeof sliderTrackVariants>,
     VariantProps<typeof sliderRangeVariants> {
   /** Current value (controlled) */
