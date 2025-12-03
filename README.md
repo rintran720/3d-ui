@@ -59,6 +59,14 @@ A beautiful 3D-styled UI component library built with React and TailwindCSS. Ins
 | **Calendar**       | Date calendar picker                    |
 | **DatePicker**     | Date input with calendar                |
 | **Form**           | Form components and validation          |
+| **BarChart**       | 3D bar charts with gradients            |
+| **LineChart**      | Line charts with smooth curves          |
+| **PieChart**       | Pie and donut charts                    |
+| **AreaChart**      | Area charts with gradients              |
+| **ScatterChart**   | Scatter plots for correlation analysis  |
+| **RadarChart**     | Radar/spider charts for comparisons     |
+| **ComposedChart**  | Combined bar, line, and area charts     |
+| **GaugeChart**     | Gauge/speedometer charts for metrics    |
 | **ThemeProvider**  | Theme context provider                  |
 
 ## 🚀 Getting Started
@@ -498,6 +506,174 @@ import {
     <DropdownMenuItem>Logout</DropdownMenuItem>
   </DropdownMenuContent>
 </DropdownMenu>;
+```
+
+### Charts
+
+```tsx
+import { BarChart, LineChart, PieChart, AreaChart } from "@votekio/3d-ui";
+
+// BarChart
+<BarChart
+  title="Sales Overview"
+  data={[
+    { label: "Jan", value: 120, color: "primary" },
+    { label: "Feb", value: 190, color: "secondary" },
+    { label: "Mar", value: 300, color: "accent" },
+  ]}
+  showGrid
+  showLabels
+/>
+
+// LineChart
+<LineChart
+  title="User Growth"
+  series={[
+    {
+      name: "Users",
+      color: "primary",
+      data: [
+        { label: "Jan", value: 100 },
+        { label: "Feb", value: 150 },
+        { label: "Mar", value: 200 },
+      ],
+    },
+  ]}
+  showGrid
+  showDots
+  curve="smooth"
+/>
+
+// PieChart
+<PieChart
+  title="Market Share"
+  data={[
+    { label: "Desktop", value: 45, color: "primary" },
+    { label: "Mobile", value: 30, color: "secondary" },
+    { label: "Tablet", value: 15, color: "accent" },
+  ]}
+  showLabels
+  showLegend
+/>
+
+// AreaChart
+<AreaChart
+  title="Revenue Trend"
+  series={[
+    {
+      name: "Revenue",
+      color: "primary",
+      data: [
+        { label: "Jan", value: 10000 },
+        { label: "Feb", value: 15000 },
+        { label: "Mar", value: 12000 },
+      ],
+    },
+  ]}
+  showGrid
+  curve="smooth"
+/>
+```
+
+### ScatterChart
+
+```tsx
+import { ScatterChart } from "@votekio/3d-ui";
+
+<ScatterChart
+  title="Sales vs Marketing"
+  xAxisLabel="Marketing Spend"
+  yAxisLabel="Sales"
+  series={[
+    {
+      name: "Data",
+      color: "primary",
+      data: [
+        { x: 1000, y: 5000 },
+        { x: 2000, y: 8000 },
+        { x: 3000, y: 12000 },
+      ],
+    },
+  ]}
+  showGrid
+/>;
+```
+
+### RadarChart
+
+```tsx
+import { RadarChart } from "@votekio/3d-ui";
+
+<RadarChart
+  title="Performance Metrics"
+  series={[
+    {
+      name: "Product A",
+      color: "primary",
+      data: [
+        { label: "Speed", value: 80 },
+        { label: "Quality", value: 90 },
+        { label: "Price", value: 70 },
+      ],
+    },
+  ]}
+  showGrid
+  showArea
+/>;
+```
+
+### ComposedChart
+
+```tsx
+import { ComposedChart } from "@votekio/3d-ui";
+
+<ComposedChart
+  title="Revenue Analysis"
+  data={[
+    { label: "Jan", barValue: 12000, lineValue: 8000, areaValue: 4000 },
+    { label: "Feb", barValue: 15000, lineValue: 9000, areaValue: 6000 },
+  ]}
+  showGrid
+  barColor="primary"
+  lineColor="secondary"
+  areaColor="accent"
+/>;
+```
+
+### GaugeChart
+
+```tsx
+import { GaugeChart } from "@votekio/3d-ui";
+
+// Basic gauge
+<GaugeChart
+  title="CPU Usage"
+  value={75}
+  min={0}
+  max={100}
+  unit="%"
+  color="primary"
+/>
+
+// Custom range
+<GaugeChart
+  title="Temperature"
+  value={22}
+  min={0}
+  max={40}
+  unit="°C"
+  color="warning"
+/>
+
+// Full circle gauge
+<GaugeChart
+  title="Progress"
+  value={270}
+  min={0}
+  max={360}
+  type="full"
+  color="success"
+/>
 ```
 
 ## 🛠️ Development

@@ -543,6 +543,46 @@ export {
   usePrefersDarkMode,
 } from "./lib/ssr-utils";
 
+export {
+  BarChart,
+  barChartVariants,
+  LineChart,
+  lineChartVariants,
+  PieChart,
+  pieChartVariants,
+  AreaChart,
+  areaChartVariants,
+  ScatterChart,
+  scatterChartVariants,
+  RadarChart,
+  radarChartVariants,
+  ComposedChart,
+  composedChartVariants,
+  GaugeChart,
+  gaugeChartVariants,
+} from "./components/Chart";
+export type {
+  BarChartProps,
+  BarChartData,
+  LineChartProps,
+  LineChartData,
+  LineChartSeries,
+  PieChartProps,
+  PieChartData,
+  AreaChartProps,
+  AreaChartData,
+  AreaChartSeries,
+  ScatterChartProps,
+  ScatterChartData,
+  ScatterChartSeries,
+  RadarChartProps,
+  RadarChartData,
+  RadarChartSeries,
+  ComposedChartProps,
+  ComposedChartData,
+  GaugeChartProps,
+} from "./components/Chart";
+
 // Utilities
 export { cn } from "./lib/utils";
 
