@@ -50,20 +50,46 @@ export interface ComposedChartProps
   title?: string;
   /** Chart description */
   description?: string;
-  /** Maximum value for scaling */
+  /** Maximum value for scaling (used for all if separate scales not provided) */
   maxValue?: number;
+  /** Maximum value for bar scaling */
+  maxBarValue?: number;
+  /** Maximum value for line scaling */
+  maxLineValue?: number;
+  /** Maximum value for area scaling */
+  maxAreaValue?: number;
   /** Show grid lines */
   showGrid?: boolean;
   /** Show value labels */
   showLabels?: boolean;
   /** Bar color */
-  barColor?: "primary" | "secondary" | "accent" | "success" | "warning" | "danger";
+  barColor?:
+    | "primary"
+    | "secondary"
+    | "accent"
+    | "success"
+    | "warning"
+    | "danger";
   /** Line color */
-  lineColor?: "primary" | "secondary" | "accent" | "success" | "warning" | "danger";
+  lineColor?:
+    | "primary"
+    | "secondary"
+    | "accent"
+    | "success"
+    | "warning"
+    | "danger";
   /** Area color */
-  areaColor?: "primary" | "secondary" | "accent" | "success" | "warning" | "danger";
+  areaColor?:
+    | "primary"
+    | "secondary"
+    | "accent"
+    | "success"
+    | "warning"
+    | "danger";
   /** Bar spacing */
   barSpacing?: number;
+  /** Curve type for area and line charts */
+  curve?: "linear" | "smooth";
 }
 
 const colorGradients = {
@@ -121,7 +147,10 @@ const colorGradients = {
 // ComposedChart Component
 // ============================================================================
 
-export const ComposedChart = React.forwardRef<HTMLDivElement, ComposedChartProps>(
+export const ComposedChart = React.forwardRef<
+  HTMLDivElement,
+  ComposedChartProps
+>(
   (
     {
       className,
@@ -130,58 +159,155 @@ export const ComposedChart = React.forwardRef<HTMLDivElement, ComposedChartProps
       title,
       description,
       maxValue,
+      maxBarValue,
+      maxLineValue,
+      maxAreaValue,
       showGrid = true,
       showLabels = true,
       barColor = "primary",
       lineColor = "secondary",
       areaColor = "accent",
       barSpacing = 12,
+      curve = "smooth",
       ...props
     },
     ref
   ) => {
     const chartHeight = 300;
-    const padding = { top: 20, right: 20, bottom: 40, left: 50 };
+    const padding = { top: 20, right: 60, bottom: 40, left: 50 };
 
-    // Calculate max value
-    const allValues = data.flatMap((d) => [
-      d.barValue || 0,
-      d.lineValue || 0,
-      d.areaValue || 0,
-    ]);
-    const max = React.useMemo(() => {
-      if (maxValue !== undefined) return maxValue;
-      return Math.max(...allValues, 0) * 1.1;
-    }, [allValues, maxValue]);
+    // Determine which chart types are present
+    const hasBar = data.some((d) => d.barValue !== undefined);
+    const hasLine = data.some((d) => d.lineValue !== undefined);
+    const hasArea = data.some((d) => d.areaValue !== undefined);
+
+    const chartTypesCount = [hasBar, hasLine, hasArea].filter(Boolean).length;
+
+    // Only allow maximum 2 chart types
+    if (chartTypesCount > 2) {
+      console.warn(
+        "ComposedChart only supports maximum 2 chart types. Please use only 2 of: bar, line, area"
+      );
+    }
+
+    // Calculate max values for each chart type
+    const barValues = data.map((d) => d.barValue || 0);
+    const lineValues = data.map((d) => d.lineValue || 0);
+    const areaValues = data.map((d) => d.areaValue || 0);
+
+    const barMax = React.useMemo(() => {
+      if (maxBarValue !== undefined) return maxBarValue;
+      if (
+        maxValue !== undefined &&
+        barValues.length > 0 &&
+        Math.max(...barValues) > 0
+      )
+        return maxValue;
+      return Math.max(...barValues, 0) * 1.1 || 100;
+    }, [barValues, maxBarValue, maxValue]);
+
+    const lineMax = React.useMemo(() => {
+      if (maxLineValue !== undefined) return maxLineValue;
+      if (
+        maxValue !== undefined &&
+        lineValues.length > 0 &&
+        Math.max(...lineValues) > 0
+      )
+        return maxValue;
+      return Math.max(...lineValues, 0) * 1.1 || 100;
+    }, [lineValues, maxLineValue, maxValue]);
+
+    const areaMax = React.useMemo(() => {
+      if (maxAreaValue !== undefined) return maxAreaValue;
+      if (
+        maxValue !== undefined &&
+        areaValues.length > 0 &&
+        Math.max(...areaValues) > 0
+      )
+        return maxValue;
+      return Math.max(...areaValues, 0) * 1.1 || 100;
+    }, [areaValues, maxAreaValue, maxValue]);
 
     const chartAreaHeight = chartHeight - padding.top - padding.bottom;
 
-    // Generate Y-axis labels
-    const yAxisLabels = Array.from({ length: 5 }).map((_, i) => {
-      const value = max - (max / 4) * i;
-      const y = padding.top + (chartAreaHeight / 4) * i;
+    // Generate Y-axis labels for each chart type
+    // Calculate Y positions based on actual scaling to ensure alignment
+    const barYAxisLabels = Array.from({ length: 5 }).map((_, i) => {
+      const value = barMax - (barMax / 4) * i;
+      const y =
+        padding.top + chartAreaHeight - (value / barMax) * chartAreaHeight;
+      return { value, y };
+    });
+
+    const lineYAxisLabels = Array.from({ length: 5 }).map((_, i) => {
+      const value = lineMax - (lineMax / 4) * i;
+      const y =
+        padding.top + chartAreaHeight - (value / lineMax) * chartAreaHeight;
+      return { value, y };
+    });
+
+    const areaYAxisLabels = Array.from({ length: 5 }).map((_, i) => {
+      const value = areaMax - (areaMax / 4) * i;
+      const y =
+        padding.top + chartAreaHeight - (value / areaMax) * chartAreaHeight;
       return { value, y };
     });
 
     // Calculate bar dimensions
-    const barWidth = (1000 - padding.left - padding.right - barSpacing * (data.length - 1)) / data.length;
-    
+    const barWidth =
+      (1000 - padding.left - padding.right - barSpacing * (data.length - 1)) /
+      data.length;
+
     // Get X position for bar center (used for aligning line points)
     const getBarCenterX = (index: number) => {
       return padding.left + index * (barWidth + barSpacing) + barWidth / 2;
     };
 
     // Create line path - align with bar centers
-    const createLinePath = (getValue: (d: ComposedChartData) => number | undefined) => {
-      const points = data
+    const createLinePath = (
+      getValue: (d: ComposedChartData) => number | undefined,
+      scaleMax: number
+    ) => {
+      if (data.length === 0) return "";
+
+      const getY = (value: number) => {
+        return (
+          padding.top + chartAreaHeight - (value / scaleMax) * chartAreaHeight
+        );
+      };
+
+      if (curve === "smooth" && data.length > 2) {
+        // Smooth curve using quadratic bezier (same as LineChart)
+        let path = `M ${getBarCenterX(0)} ${getY(getValue(data[0]) || 0)}`;
+        for (let i = 1; i < data.length; i++) {
+          const x0 = getBarCenterX(i - 1);
+          const y0 = getY(getValue(data[i - 1]) || 0);
+          const x1 = getBarCenterX(i);
+          const y1 = getY(getValue(data[i]) || 0);
+
+          if (i === 1) {
+            path += ` Q ${x0} ${y0}, ${(x0 + x1) / 2} ${(y0 + y1) / 2}`;
+          } else {
+            const prevX = getBarCenterX(i - 2);
+            const prevY = getY(getValue(data[i - 2]) || 0);
+            const cp1x = x0 + (x1 - prevX) / 4;
+            const cp1y = y0 + (y1 - prevY) / 4;
+            path += ` T ${cp1x} ${cp1y}`;
+          }
+          path += ` T ${x1} ${y1}`;
+        }
+        return path;
+      }
+
+      // Linear path
+      return data
         .map((d, i) => {
           const value = getValue(d) || 0;
           const x = getBarCenterX(i);
-          const y = padding.top + chartAreaHeight - (value / max) * chartAreaHeight;
+          const y = getY(value);
           return `${i === 0 ? "M" : "L"} ${x} ${y}`;
         })
         .join(" ");
-      return points;
     };
 
     return (
@@ -238,28 +364,69 @@ export const ComposedChart = React.forwardRef<HTMLDivElement, ComposedChartProps
                   y2="100%"
                 >
                   <stop offset="0%" stopColor={colors.fill} stopOpacity="0.4" />
-                  <stop offset="100%" stopColor={colors.fill} stopOpacity="0.05" />
+                  <stop
+                    offset="100%"
+                    stopColor={colors.fill}
+                    stopOpacity="0.05"
+                  />
                 </linearGradient>
               ))}
             </defs>
 
-            {/* Y-axis labels */}
-            {yAxisLabels.map((label, i) => (
-              <text
-                key={`y-label-${i}`}
-                x={padding.left - 10}
-                y={label.y}
-                textAnchor="end"
-                dominantBaseline="middle"
-                className="text-xs fill-surface-400 pointer-events-none"
-              >
-                {Math.round(label.value)}
-              </text>
-            ))}
+            {/* Y-axis labels - Bar axis (left) */}
+            {barValues.some((v) => v > 0) &&
+              barYAxisLabels.map((label, i) => (
+                <text
+                  key={`bar-y-label-${i}`}
+                  x={padding.left - 10}
+                  y={label.y}
+                  textAnchor="end"
+                  dominantBaseline="middle"
+                  className="text-xs fill-surface-400 pointer-events-none"
+                >
+                  {Math.round(label.value)}
+                </text>
+              ))}
+
+            {/* Y-axis labels - Line axis (right) */}
+            {lineValues.some((v) => v > 0) &&
+              lineYAxisLabels.map((label, i) => (
+                <text
+                  key={`line-y-label-${i}`}
+                  x={1000 - padding.right + 10}
+                  y={label.y}
+                  textAnchor="start"
+                  dominantBaseline="middle"
+                  className="text-xs fill-surface-400 pointer-events-none"
+                  style={{ fill: colorGradients[lineColor].stroke }}
+                >
+                  {Math.round(label.value)}
+                </text>
+              ))}
+
+            {/* Y-axis labels - Area axis (right, offset if line exists) */}
+            {areaValues.some((v) => v > 0) &&
+              areaYAxisLabels.map((label, i) => (
+                <text
+                  key={`area-y-label-${i}`}
+                  x={
+                    1000 -
+                    padding.right +
+                    (lineValues.some((v) => v > 0) ? 50 : 10)
+                  }
+                  y={label.y}
+                  textAnchor="start"
+                  dominantBaseline="middle"
+                  className="text-xs fill-surface-400 pointer-events-none"
+                  style={{ fill: colorGradients[areaColor].stroke }}
+                >
+                  {Math.round(label.value)}
+                </text>
+              ))}
 
             {/* Grid lines */}
             {showGrid &&
-              yAxisLabels.map((label, i) => (
+              barYAxisLabels.map((label, i) => (
                 <line
                   key={`grid-${i}`}
                   x1={padding.left}
@@ -273,70 +440,93 @@ export const ComposedChart = React.forwardRef<HTMLDivElement, ComposedChartProps
                 />
               ))}
 
-            {/* Area chart - aligned with bar centers */}
-            {data.some((d) => d.areaValue !== undefined) && (
-              <path
-                d={`${createLinePath((d) => d.areaValue)} L ${getBarCenterX(data.length - 1)} ${chartHeight - padding.bottom} L ${getBarCenterX(0)} ${chartHeight - padding.bottom} Z`}
-                fill={`url(#composed-area-gradient-${areaColor})`}
-                className="transition-opacity duration-300"
-              />
-            )}
+            {/* Bars - render first (farthest/behind) */}
+            {hasBar &&
+              data.map((item, index) => {
+                if (item.barValue === undefined) return null;
 
-            {/* Bars */}
-            {data.map((item, index) => {
-              if (item.barValue === undefined) return null;
+                const barHeight = (item.barValue / barMax) * chartAreaHeight;
+                const x = padding.left + index * (barWidth + barSpacing);
+                const y = padding.top + chartAreaHeight - barHeight;
+                const gradient = colorGradients[barColor];
 
-              const barHeight = (item.barValue / max) * chartAreaHeight;
-              const x = padding.left + index * (barWidth + barSpacing);
-              const y = padding.top + chartAreaHeight - barHeight;
-              const gradient = colorGradients[barColor];
+                return (
+                  <g key={`bar-${index}`}>
+                    {/* Bar shadow */}
+                    <rect
+                      x={x + 4}
+                      y={y + 4}
+                      width={barWidth}
+                      height={barHeight}
+                      fill="rgba(0,0,0,0.3)"
+                      rx="4"
+                      className="pointer-events-none"
+                    />
+                    {/* Bar */}
+                    <rect
+                      x={x}
+                      y={y}
+                      width={barWidth}
+                      height={barHeight}
+                      fill={`url(#composed-bar-gradient-${barColor})`}
+                      rx="4"
+                      className="cursor-pointer transition-all hover:opacity-90"
+                      style={{
+                        filter: `drop-shadow(0 4px 0 ${gradient.shadow}) drop-shadow(0 6px 8px rgba(0,0,0,0.3))`,
+                      }}
+                    />
+                    {/* Value label */}
+                    {showLabels && (
+                      <text
+                        x={x + barWidth / 2}
+                        y={y - 6}
+                        textAnchor="middle"
+                        className="text-xs font-semibold fill-surface-200 pointer-events-none"
+                        style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
+                      >
+                        {item.barValue}
+                      </text>
+                    )}
+                  </g>
+                );
+              })}
 
-              return (
-                <g key={`bar-${index}`}>
-                  {/* Bar shadow */}
-                  <rect
-                    x={x + 4}
-                    y={y + 4}
-                    width={barWidth}
-                    height={barHeight}
-                    fill="rgba(0,0,0,0.3)"
-                    rx="4"
-                    className="pointer-events-none"
-                  />
-                  {/* Bar */}
-                  <rect
-                    x={x}
-                    y={y}
-                    width={barWidth}
-                    height={barHeight}
-                    fill={`url(#composed-bar-gradient-${barColor})`}
-                    rx="4"
-                    className="cursor-pointer transition-all hover:opacity-90"
-                    style={{
-                      filter: `drop-shadow(0 4px 0 ${gradient.shadow}) drop-shadow(0 6px 8px rgba(0,0,0,0.3))`,
-                    }}
-                  />
-                  {/* Value label */}
-                  {showLabels && (
-                    <text
-                      x={x + barWidth / 2}
-                      y={y - 6}
-                      textAnchor="middle"
-                      className="text-xs font-semibold fill-surface-200 pointer-events-none"
-                      style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
-                    >
-                      {item.barValue}
-                    </text>
-                  )}
-                </g>
-              );
-            })}
+            {/* Area chart - render second (middle layer) */}
+            {hasArea &&
+              (() => {
+                const areaPath = createLinePath((d) => d.areaValue, areaMax);
+                const lastX = getBarCenterX(data.length - 1);
+                const firstX = getBarCenterX(0);
+                const bottomY = chartHeight - padding.bottom;
+                const areaColorScheme = colorGradients[areaColor];
+                const fullAreaPath = `${areaPath} L ${lastX} ${bottomY} L ${firstX} ${bottomY} Z`;
+                return (
+                  <>
+                    {/* Area fill */}
+                    <path
+                      d={fullAreaPath}
+                      fill={`url(#composed-area-gradient-${areaColor})`}
+                      className="transition-opacity duration-300 pointer-events-none"
+                    />
+                    {/* Area line */}
+                    <path
+                      d={areaPath}
+                      fill="none"
+                      stroke={areaColorScheme.stroke}
+                      strokeWidth="3"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className="drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)] pointer-events-none"
+                    />
+                  </>
+                );
+              })()}
 
-            {/* Line chart */}
-            {data.some((d) => d.lineValue !== undefined) && (
+            {/* Line chart - render last (closest/front) */}
+            {hasLine && (
               <>
                 <path
-                  d={createLinePath((d) => d.lineValue)}
+                  d={createLinePath((d) => d.lineValue, lineMax)}
                   fill="none"
                   stroke={colorGradients[lineColor].stroke}
                   strokeWidth="3"
@@ -348,7 +538,10 @@ export const ComposedChart = React.forwardRef<HTMLDivElement, ComposedChartProps
                 {data.map((item, index) => {
                   if (item.lineValue === undefined) return null;
                   const x = getBarCenterX(index);
-                  const y = padding.top + chartAreaHeight - (item.lineValue / max) * chartAreaHeight;
+                  const y =
+                    padding.top +
+                    chartAreaHeight -
+                    (item.lineValue / lineMax) * chartAreaHeight;
                   return (
                     <g key={`line-point-${index}`}>
                       <circle
@@ -398,4 +591,3 @@ export const ComposedChart = React.forwardRef<HTMLDivElement, ComposedChartProps
 ComposedChart.displayName = "ComposedChart";
 
 export { composedChartVariants };
-

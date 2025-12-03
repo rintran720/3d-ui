@@ -37,3 +37,6 @@ export type { ComposedChartProps, ComposedChartData } from "./ComposedChart";
 
 export { GaugeChart, gaugeChartVariants } from "./GaugeChart";
 export type { GaugeChartProps } from "./GaugeChart";
+
+export { ChartTooltip, chartTooltipVariants } from "./ChartTooltip";
+export type { ChartTooltipProps } from "./ChartTooltip";

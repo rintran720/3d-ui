@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import * as React from "react";
 import { BarChart } from "./BarChart";
 import { LineChart } from "./LineChart";
 import { PieChart } from "./PieChart";
@@ -7,6 +8,7 @@ import { ScatterChart } from "./ScatterChart";
 import { RadarChart } from "./RadarChart";
 import { ComposedChart } from "./ComposedChart";
 import { GaugeChart } from "./GaugeChart";
+import { ChartTooltip } from "./ChartTooltip";
 
 const meta: Meta<typeof BarChart> = {
   title: "Components/Chart",
@@ -53,6 +55,201 @@ export const BarChartMultipleColors: Story = {
       showLabels
     />
   ),
+};
+
+export const BarChartWithTooltip: Story = {
+  render: () => (
+    <BarChart
+      title="Monthly Sales with Custom Tooltips"
+      data={[
+        { label: "Jan", value: 120, tooltip: "January: $120K revenue" },
+        { label: "Feb", value: 190, tooltip: "February: $190K revenue" },
+        { label: "Mar", value: 300, tooltip: "March: $300K revenue" },
+        { label: "Apr", value: 250, tooltip: "April: $250K revenue" },
+        { label: "May", value: 180, tooltip: "May: $180K revenue" },
+        { label: "Jun", value: 320, tooltip: "June: $320K revenue" },
+      ]}
+      showGrid
+      showLabels
+    />
+  ),
+};
+
+export const BarChartWithCustomTooltipRenderer: Story = {
+  render: () => (
+    <BarChart
+      title="Monthly Sales with Custom Tooltip Renderer"
+      data={[
+        { label: "Jan", value: 120 },
+        { label: "Feb", value: 190 },
+        { label: "Mar", value: 300 },
+        { label: "Apr", value: 250 },
+        { label: "May", value: 180 },
+        { label: "Jun", value: 320 },
+      ]}
+      showGrid
+      showLabels
+      renderTooltip={(data) => (
+        <div className="text-sm">
+          <div className="font-bold text-primary-400">{data.label}</div>
+          <div className="text-surface-200">Revenue: ${data.value}K</div>
+          <div className="text-xs text-surface-400 mt-1">Click for details</div>
+        </div>
+      )}
+    />
+  ),
+};
+
+export const BarChartWithRichCustomTooltip: Story = {
+  render: () => {
+    // Custom Tooltip Component with rich information
+    const RichTooltip = ({
+      x,
+      y,
+      children,
+    }: {
+      x: number;
+      y: number;
+      children: React.ReactNode;
+    }) => {
+      return (
+        <ChartTooltip x={x} y={y} variant="elevated" className="min-w-[280px]">
+          {children}
+        </ChartTooltip>
+      );
+    };
+
+    // Sample data with additional metadata
+    const salesData = [
+      {
+        label: "Jan",
+        value: 120,
+        growth: 5.2,
+        target: 100,
+        region: "North",
+        topProduct: "Product A",
+      },
+      {
+        label: "Feb",
+        value: 190,
+        growth: 12.8,
+        target: 150,
+        region: "South",
+        topProduct: "Product B",
+      },
+      {
+        label: "Mar",
+        value: 150,
+        growth: -2.1,
+        target: 180,
+        region: "East",
+        topProduct: "Product C",
+      },
+      {
+        label: "Apr",
+        value: 220,
+        growth: 18.5,
+        target: 200,
+        region: "West",
+        topProduct: "Product A",
+      },
+      {
+        label: "May",
+        value: 180,
+        growth: 8.3,
+        target: 170,
+        region: "Central",
+        topProduct: "Product B",
+      },
+      {
+        label: "Jun",
+        value: 250,
+        growth: 25.0,
+        target: 220,
+        region: "North",
+        topProduct: "Product A",
+      },
+    ];
+
+    return (
+      <BarChart
+        title="Sales Performance with Rich Tooltip"
+        description="Hover over bars to see detailed information"
+        data={salesData.map(({ label, value }) => ({ label, value }))}
+        TooltipComponent={RichTooltip}
+        renderTooltip={(data) => {
+          const fullData = salesData.find((d) => d.label === data.label);
+          if (!fullData) return null;
+
+          const isAboveTarget = fullData.value >= fullData.target;
+          const growthColor =
+            fullData.growth >= 0 ? "text-success" : "text-danger";
+
+          return (
+            <div className="space-y-2">
+              {/* Header */}
+              <div className="border-b border-surface-600 pb-2">
+                <div className="text-base font-bold text-surface-100">
+                  {fullData.label} 2024 Sales Report
+                </div>
+                <div className="text-xs text-surface-400">
+                  Region: {fullData.region}
+                </div>
+              </div>
+
+              {/* Main Metrics */}
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-surface-300">
+                    Sales Revenue
+                  </span>
+                  <span className="text-sm font-semibold text-surface-100">
+                    ${fullData.value}K
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-surface-300">Target</span>
+                  <span className="text-sm text-surface-400">
+                    ${fullData.target}K
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-surface-300">Performance</span>
+                  <span
+                    className={`text-sm font-semibold ${
+                      isAboveTarget ? "text-success" : "text-warning"
+                    }`}
+                  >
+                    {isAboveTarget ? "✓" : "✗"}{" "}
+                    {isAboveTarget ? "Above" : "Below"} Target
+                  </span>
+                </div>
+              </div>
+
+              {/* Growth */}
+              <div className="pt-1 border-t border-surface-600">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-surface-300">Growth Rate</span>
+                  <span className={`text-sm font-semibold ${growthColor}`}>
+                    {fullData.growth >= 0 ? "+" : ""}
+                    {fullData.growth}%
+                  </span>
+                </div>
+              </div>
+
+              {/* Top Product */}
+              <div className="pt-1 border-t border-surface-600">
+                <div className="text-xs text-surface-400">Top Product</div>
+                <div className="text-sm font-medium text-surface-200">
+                  {fullData.topProduct}
+                </div>
+              </div>
+            </div>
+          );
+        }}
+      />
+    );
+  },
 };
 
 // ============================================================================
@@ -332,6 +529,84 @@ export const ScatterChartMultipleSeries: Story = {
   },
 };
 
+export const ScatterChartWithTooltip: Story = {
+  render: () => (
+    <ScatterChart
+      title="Sales vs Marketing Spend with Tooltips"
+      description="Hover over points to see detailed information"
+      xAxisLabel="Marketing Spend ($K)"
+      yAxisLabel="Sales ($K)"
+      series={[
+        {
+          name: "Q1 2024",
+          color: "primary",
+          data: [
+            {
+              x: 20,
+              y: 150,
+              tooltip: "Q1: Marketing $20K → Sales $150K",
+            },
+            {
+              x: 35,
+              y: 220,
+              tooltip: "Q1: Marketing $35K → Sales $220K",
+            },
+            {
+              x: 50,
+              y: 280,
+              tooltip: "Q1: Marketing $50K → Sales $280K",
+            },
+            {
+              x: 65,
+              y: 350,
+              tooltip: "Q1: Marketing $65K → Sales $350K",
+            },
+            {
+              x: 80,
+              y: 420,
+              tooltip: "Q1: Marketing $80K → Sales $420K",
+            },
+          ],
+        },
+        {
+          name: "Q2 2024",
+          color: "success",
+          data: [
+            {
+              x: 25,
+              y: 180,
+              tooltip: "Q2: Marketing $25K → Sales $180K",
+            },
+            {
+              x: 40,
+              y: 250,
+              tooltip: "Q2: Marketing $40K → Sales $250K",
+            },
+            {
+              x: 55,
+              y: 310,
+              tooltip: "Q2: Marketing $55K → Sales $310K",
+            },
+            {
+              x: 70,
+              y: 380,
+              tooltip: "Q2: Marketing $70K → Sales $380K",
+            },
+            {
+              x: 85,
+              y: 450,
+              tooltip: "Q2: Marketing $85K → Sales $450K",
+            },
+          ],
+        },
+      ]}
+      showGrid
+      showLegend
+      pointSize={8}
+    />
+  ),
+};
+
 export const ScatterChartWithManyPoints: Story = {
   render: () => {
     // Generate a large dataset
@@ -451,20 +726,20 @@ export const ComposedChartDefault: Story = {
   render: () => (
     <ComposedChart
       title="Revenue Analysis"
-      description="Combined view of revenue, expenses, and profit"
+      description="Combined view of revenue (bars) and expenses (line)"
       data={[
-        { label: "Jan", barValue: 12000, lineValue: 8000, areaValue: 4000 },
-        { label: "Feb", barValue: 15000, lineValue: 9000, areaValue: 6000 },
-        { label: "Mar", barValue: 18000, lineValue: 10000, areaValue: 8000 },
-        { label: "Apr", barValue: 14000, lineValue: 9500, areaValue: 4500 },
-        { label: "May", barValue: 20000, lineValue: 11000, areaValue: 9000 },
-        { label: "Jun", barValue: 22000, lineValue: 12000, areaValue: 10000 },
+        { label: "Jan", barValue: 12000, lineValue: 8000 },
+        { label: "Feb", barValue: 15000, lineValue: 9000 },
+        { label: "Mar", barValue: 18000, lineValue: 10000 },
+        { label: "Apr", barValue: 14000, lineValue: 9500 },
+        { label: "May", barValue: 20000, lineValue: 11000 },
+        { label: "Jun", barValue: 22000, lineValue: 12000 },
       ]}
       showGrid
       showLabels
       barColor="primary"
       lineColor="secondary"
-      areaColor="accent"
+      curve="smooth"
     />
   ),
 };
@@ -482,6 +757,137 @@ export const ComposedChartBarAndLine: Story = {
       showGrid
       barColor="primary"
       lineColor="warning"
+      curve="smooth"
+    />
+  ),
+};
+
+export const ComposedChartBarAndArea: Story = {
+  render: () => (
+    <ComposedChart
+      title="Website Traffic & Conversion"
+      description="Page views (bars) and conversion rate trend (area)"
+      data={[
+        { label: "Mon", barValue: 4500, areaValue: 2500 },
+        { label: "Tue", barValue: 5200, areaValue: 2800 },
+        { label: "Wed", barValue: 4800, areaValue: 3100 },
+        { label: "Thu", barValue: 6100, areaValue: 3400 },
+        { label: "Fri", barValue: 5500, areaValue: 3600 },
+        { label: "Sat", barValue: 4200, areaValue: 3200 },
+        { label: "Sun", barValue: 3800, areaValue: 2900 },
+      ]}
+      barColor="accent"
+      areaColor="secondary"
+      curve="smooth"
+      showGrid
+      showLabels
+    />
+  ),
+};
+
+export const ComposedChartSalesAndRevenue: Story = {
+  render: () => (
+    <ComposedChart
+      title="Sales & Revenue Analysis"
+      description="Monthly sales volume (bars) vs revenue trend (line)"
+      data={[
+        { label: "Jan", barValue: 120, lineValue: 95 },
+        { label: "Feb", barValue: 150, lineValue: 110 },
+        { label: "Mar", barValue: 180, lineValue: 125 },
+        { label: "Apr", barValue: 165, lineValue: 140 },
+        { label: "May", barValue: 200, lineValue: 155 },
+        { label: "Jun", barValue: 220, lineValue: 170 },
+        { label: "Jul", barValue: 190, lineValue: 185 },
+        { label: "Aug", barValue: 240, lineValue: 200 },
+      ]}
+      barColor="primary"
+      lineColor="success"
+      curve="smooth"
+      showGrid
+      showLabels
+    />
+  ),
+};
+
+export const ComposedChartProfitMargin: Story = {
+  render: () => (
+    <ComposedChart
+      title="Profit & Margin Analysis"
+      description="Revenue (bars) and profit trend (line)"
+      data={[
+        { label: "Q1", barValue: 500, lineValue: 120 },
+        { label: "Q2", barValue: 650, lineValue: 150 },
+        { label: "Q3", barValue: 720, lineValue: 180 },
+        { label: "Q4", barValue: 800, lineValue: 210 },
+      ]}
+      barColor="primary"
+      lineColor="success"
+      curve="smooth"
+      showGrid
+      showLabels
+    />
+  ),
+};
+
+export const ComposedChartUserEngagement: Story = {
+  render: () => (
+    <ComposedChart
+      title="User Engagement Metrics"
+      description="Active users (bars) and engagement score (area)"
+      data={[
+        { label: "Week 1", barValue: 1200, areaValue: 72 },
+        { label: "Week 2", barValue: 1450, areaValue: 75 },
+        { label: "Week 3", barValue: 1600, areaValue: 78 },
+        { label: "Week 4", barValue: 1800, areaValue: 82 },
+      ]}
+      barColor="primary"
+      areaColor="success"
+      curve="smooth"
+      showGrid
+      showLabels
+    />
+  ),
+};
+
+export const ComposedChartInventorySales: Story = {
+  render: () => (
+    <ComposedChart
+      title="Inventory & Sales Performance"
+      description="Units sold (bars) and inventory level trend (line)"
+      data={[
+        { label: "Jan", barValue: 450, lineValue: 1200 },
+        { label: "Feb", barValue: 520, lineValue: 1150 },
+        { label: "Mar", barValue: 480, lineValue: 1300 },
+        { label: "Apr", barValue: 600, lineValue: 1050 },
+        { label: "May", barValue: 550, lineValue: 1200 },
+        { label: "Jun", barValue: 680, lineValue: 950 },
+      ]}
+      barColor="success"
+      lineColor="warning"
+      curve="smooth"
+      showGrid
+      showLabels
+    />
+  ),
+};
+
+export const ComposedChartMarketingROI: Story = {
+  render: () => (
+    <ComposedChart
+      title="Marketing ROI Analysis"
+      description="Marketing spend (bars) and ROI trend (line)"
+      data={[
+        { label: "Campaign 1", barValue: 5000, lineValue: 2.5 },
+        { label: "Campaign 2", barValue: 7500, lineValue: 3.2 },
+        { label: "Campaign 3", barValue: 6000, lineValue: 3.8 },
+        { label: "Campaign 4", barValue: 9000, lineValue: 4.5 },
+        { label: "Campaign 5", barValue: 8500, lineValue: 5.1 },
+      ]}
+      barColor="primary"
+      lineColor="success"
+      curve="smooth"
+      showGrid
+      showLabels
     />
   ),
 };

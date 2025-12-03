@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
+import { ChartTooltip } from "./ChartTooltip";
 
 // ============================================================================
 // PieChart Variants
@@ -38,6 +39,8 @@ export interface PieChartData {
   label: string;
   value: number;
   color?: "primary" | "secondary" | "accent" | "success" | "warning" | "danger";
+  /** Custom tooltip content for this slice */
+  tooltip?: React.ReactNode | ((data: PieChartData) => React.ReactNode);
 }
 
 export interface PieChartProps
@@ -55,6 +58,15 @@ export interface PieChartProps
   showLegend?: boolean;
   /** Inner radius for donut chart (0 for pie chart) */
   innerRadius?: number;
+  /** Custom tooltip renderer for all slices */
+  renderTooltip?: (data: PieChartData) => React.ReactNode;
+  /** Custom Tooltip component to use instead of default */
+  TooltipComponent?: React.ComponentType<{
+    x: number;
+    y: number;
+    children: React.ReactNode;
+    transform?: string;
+  }>;
 }
 
 const colorGradients = {
@@ -99,10 +111,42 @@ export const PieChart = React.forwardRef<HTMLDivElement, PieChartProps>(
       showLabels = true,
       showLegend = true,
       innerRadius = 0,
+      renderTooltip,
+      TooltipComponent = ChartTooltip,
       ...props
     },
     ref
   ) => {
+    const [tooltip, setTooltip] = React.useState<{
+      content: React.ReactNode;
+      x: number;
+      y: number;
+    } | null>(null);
+    const tooltipTimeoutRef = React.useRef<ReturnType<
+      typeof setTimeout
+    > | null>(null);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    // Cleanup timeout on unmount
+    React.useEffect(() => {
+      return () => {
+        if (tooltipTimeoutRef.current) {
+          clearTimeout(tooltipTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    // Tooltip handlers
+    const handleTooltipMouseEnter = React.useCallback(() => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+        tooltipTimeoutRef.current = null;
+      }
+    }, []);
+
+    const handleTooltipMouseLeave = React.useCallback(() => {
+      setTooltip(null);
+    }, []);
     const size = 280;
     const centerX = size / 2;
     const centerY = size / 2;
@@ -235,6 +279,48 @@ export const PieChart = React.forwardRef<HTMLDivElement, PieChartProps>(
                       style={{
                         filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))",
                       }}
+                      onMouseEnter={(e) => {
+                        // Cancel any pending hide timeout
+                        if (tooltipTimeoutRef.current) {
+                          clearTimeout(tooltipTimeoutRef.current);
+                          tooltipTimeoutRef.current = null;
+                        }
+
+                        if (!containerRef.current) return;
+                        const rect =
+                          containerRef.current.getBoundingClientRect();
+                        const pathRect =
+                          e.currentTarget.getBoundingClientRect();
+                        const tooltipX =
+                          pathRect.left + pathRect.width / 2 - rect.left;
+                        const tooltipY =
+                          pathRect.top + pathRect.height / 2 - rect.top;
+                        const tooltipContent = item.tooltip ? (
+                          typeof item.tooltip === "function" ? (
+                            item.tooltip(item)
+                          ) : (
+                            item.tooltip
+                          )
+                        ) : renderTooltip ? (
+                          renderTooltip(item)
+                        ) : (
+                          <div className="text-sm">
+                            <div className="font-semibold">{item.label}</div>
+                            <div className="text-surface-300">
+                              Value: {item.value}
+                            </div>
+                            <div className="text-surface-400 text-xs">
+                              {((item.value / total) * 100).toFixed(1)}%
+                            </div>
+                          </div>
+                        );
+                        setTooltip({
+                          content: tooltipContent,
+                          x: tooltipX,
+                          y: tooltipY,
+                        });
+                      }}
+                      onMouseLeave={() => setTooltip(null)}
                     />
                     {/* Label */}
                     {showLabels && (
@@ -253,6 +339,18 @@ export const PieChart = React.forwardRef<HTMLDivElement, PieChartProps>(
                 );
               })}
             </svg>
+            {/* Tooltip */}
+            {tooltip && (
+              <TooltipComponent
+                x={tooltip.x}
+                y={tooltip.y}
+                transform="translateX(-50%) translateY(-50%)"
+                onMouseEnter={handleTooltipMouseEnter}
+                onMouseLeave={handleTooltipMouseLeave}
+              >
+                {tooltip.content}
+              </TooltipComponent>
+            )}
           </div>
 
           {/* Legend */}
@@ -268,7 +366,9 @@ export const PieChart = React.forwardRef<HTMLDivElement, PieChartProps>(
                     <div
                       className="w-4 h-4 rounded"
                       style={{
-                        background: `linear-gradient(135deg, ${colorGradients[item.color || "primary"].from}, ${colorGradients[item.color || "primary"].to})`,
+                        background: `linear-gradient(135deg, ${
+                          colorGradients[item.color || "primary"].from
+                        }, ${colorGradients[item.color || "primary"].to})`,
                         boxShadow: "0 2px 0 0 rgba(0,0,0,0.2)",
                       }}
                     />
@@ -294,4 +394,3 @@ export const PieChart = React.forwardRef<HTMLDivElement, PieChartProps>(
 PieChart.displayName = "PieChart";
 
 export { pieChartVariants };
-

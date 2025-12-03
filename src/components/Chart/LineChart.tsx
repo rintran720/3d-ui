@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
+import { ChartTooltip } from "./ChartTooltip";
 
 // ============================================================================
 // LineChart Variants
@@ -37,6 +38,10 @@ const lineChartVariants = cva(
 export interface LineChartData {
   label: string;
   value: number;
+  /** Custom tooltip content for this point */
+  tooltip?:
+    | React.ReactNode
+    | ((data: LineChartData, seriesName: string) => React.ReactNode);
 }
 
 export interface LineChartSeries {
@@ -64,6 +69,14 @@ export interface LineChartProps
   showArea?: boolean;
   /** Curve type */
   curve?: "linear" | "smooth";
+  /** Custom tooltip renderer for all points */
+  renderTooltip?: (data: LineChartData, seriesName: string) => React.ReactNode;
+  /** Custom Tooltip component to use instead of default */
+  TooltipComponent?: React.ComponentType<{
+    x: number;
+    y: number;
+    children: React.ReactNode;
+  }>;
 }
 
 const colorMap = {
@@ -116,10 +129,43 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
       showDots = true,
       showArea = false,
       curve = "smooth",
+      renderTooltip,
+      TooltipComponent = ChartTooltip,
       ...props
     },
     ref
   ) => {
+    const [tooltip, setTooltip] = React.useState<{
+      content: React.ReactNode;
+      x: number;
+      y: number;
+    } | null>(null);
+    const tooltipTimeoutRef = React.useRef<ReturnType<
+      typeof setTimeout
+    > | null>(null);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    // Cleanup timeout on unmount
+    React.useEffect(() => {
+      return () => {
+        if (tooltipTimeoutRef.current) {
+          clearTimeout(tooltipTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    // Tooltip handlers
+    const handleTooltipMouseEnter = React.useCallback(() => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+        tooltipTimeoutRef.current = null;
+      }
+    }, []);
+
+    const handleTooltipMouseLeave = React.useCallback(() => {
+      setTooltip(null);
+    }, []);
+
     const chartHeight = 300;
     const padding = { top: 20, right: 20, bottom: 40, left: 40 };
 
@@ -144,7 +190,10 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
       return padding.top + height - (value / max) * height;
     };
 
-    const createPath = (data: LineChartData[], containerWidth: number = 1000) => {
+    const createPath = (
+      data: LineChartData[],
+      containerWidth: number = 1000
+    ) => {
       if (data.length === 0) return "";
 
       if (curve === "smooth" && data.length > 2) {
@@ -155,7 +204,7 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
           const y0 = getY(data[i - 1].value);
           const x1 = getX(i, containerWidth);
           const y1 = getY(data[i].value);
-          
+
           if (i === 1) {
             path += ` Q ${x0} ${y0}, ${(x0 + x1) / 2} ${(y0 + y1) / 2}`;
           } else {
@@ -199,7 +248,11 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
           </div>
         )}
 
-        <div className="relative" style={{ height: chartHeight }}>
+        <div
+          ref={containerRef}
+          className="relative"
+          style={{ height: chartHeight }}
+        >
           <svg
             width="100%"
             height={chartHeight}
@@ -236,7 +289,9 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                   {/* Area under line */}
                   {showArea && (
                     <path
-                      d={`${pathData} L ${getX(serie.data.length - 1, 1000)} ${chartHeight - padding.bottom} L ${getX(0, 1000)} ${chartHeight - padding.bottom} Z`}
+                      d={`${pathData} L ${getX(serie.data.length - 1, 1000)} ${
+                        chartHeight - padding.bottom
+                      } L ${getX(0, 1000)} ${chartHeight - padding.bottom} Z`}
                       fill={color.fill}
                       className="transition-opacity duration-300"
                     />
@@ -278,6 +333,48 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
                             stroke="white"
                             strokeWidth="2"
                             className="cursor-pointer hover:r-6 transition-all"
+                            onMouseEnter={(e) => {
+                              // Cancel any pending hide timeout
+                              if (tooltipTimeoutRef.current) {
+                                clearTimeout(tooltipTimeoutRef.current);
+                                tooltipTimeoutRef.current = null;
+                              }
+
+                              if (!containerRef.current) return;
+                              const rect =
+                                containerRef.current.getBoundingClientRect();
+                              const circleRect =
+                                e.currentTarget.getBoundingClientRect();
+                              const tooltipX =
+                                circleRect.left +
+                                circleRect.width / 2 -
+                                rect.left;
+                              const tooltipY = circleRect.top - rect.top - 10;
+                              const tooltipContent = point.tooltip ? (
+                                typeof point.tooltip === "function" ? (
+                                  point.tooltip(point, serie.name)
+                                ) : (
+                                  point.tooltip
+                                )
+                              ) : renderTooltip ? (
+                                renderTooltip(point, serie.name)
+                              ) : (
+                                <div className="text-sm">
+                                  <div className="font-semibold">
+                                    {serie.name}
+                                  </div>
+                                  <div className="text-surface-300">
+                                    {point.label}: {point.value}
+                                  </div>
+                                </div>
+                              );
+                              setTooltip({
+                                content: tooltipContent,
+                                x: tooltipX,
+                                y: tooltipY,
+                              });
+                            }}
+                            onMouseLeave={() => setTooltip(null)}
                           />
                         </g>
                       );
@@ -302,6 +399,17 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
               );
             })}
           </svg>
+          {/* Tooltip */}
+          {tooltip && (
+            <TooltipComponent
+              x={tooltip.x}
+              y={tooltip.y}
+              onMouseEnter={handleTooltipMouseEnter}
+              onMouseLeave={handleTooltipMouseLeave}
+            >
+              {tooltip.content}
+            </TooltipComponent>
+          )}
         </div>
       </div>
     );
@@ -311,4 +419,3 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
 LineChart.displayName = "LineChart";
 
 export { lineChartVariants };
-

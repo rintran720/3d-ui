@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
+import { ChartTooltip } from "./ChartTooltip";
 
 // ============================================================================
 // BarChart Variants
@@ -38,6 +39,8 @@ export interface BarChartData {
   label: string;
   value: number;
   color?: "primary" | "secondary" | "accent" | "success" | "warning" | "danger";
+  /** Custom tooltip content for this bar */
+  tooltip?: React.ReactNode | ((data: BarChartData) => React.ReactNode);
 }
 
 export interface BarChartProps
@@ -59,6 +62,14 @@ export interface BarChartProps
   barSpacing?: number;
   /** Minimum bar height */
   minBarHeight?: number;
+  /** Custom tooltip renderer for all bars */
+  renderTooltip?: (data: BarChartData) => React.ReactNode;
+  /** Custom Tooltip component to use instead of default */
+  TooltipComponent?: React.ComponentType<{
+    x: number;
+    y: number;
+    children: React.ReactNode;
+  }>;
 }
 
 // ============================================================================
@@ -78,10 +89,45 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
       showLabels = true,
       barSpacing = 12,
       minBarHeight = 4,
+      renderTooltip,
+      TooltipComponent = ChartTooltip,
       ...props
     },
     ref
   ) => {
+    const [tooltip, setTooltip] = React.useState<{
+      content: React.ReactNode;
+      x: number;
+      y: number;
+    } | null>(null);
+    const tooltipTimeoutRef = React.useRef<ReturnType<
+      typeof setTimeout
+    > | null>(null);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    // Cleanup timeout on unmount
+    React.useEffect(() => {
+      return () => {
+        if (tooltipTimeoutRef.current) {
+          clearTimeout(tooltipTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    // Tooltip handlers
+    const handleTooltipMouseEnter = React.useCallback(() => {
+      // Cancel hide timeout if user hovers into tooltip
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+        tooltipTimeoutRef.current = null;
+      }
+    }, []);
+
+    const handleTooltipMouseLeave = React.useCallback(() => {
+      // Hide tooltip when mouse leaves tooltip
+      setTooltip(null);
+    }, []);
+
     const max = React.useMemo(() => {
       if (maxValue !== undefined) return maxValue;
       return Math.max(...data.map((d) => d.value), 0) * 1.1;
@@ -158,7 +204,11 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
           </div>
         )}
 
-        <div className="relative" style={{ height: chartHeight }}>
+        <div
+          ref={containerRef}
+          className="relative"
+          style={{ height: chartHeight }}
+        >
           <svg
             width={chartWidth}
             height={chartHeight}
@@ -216,7 +266,12 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
 
             {/* Bars */}
             {data.map((item, index) => {
-              const barWidth = (1000 - padding.left - padding.right - barSpacing * (data.length - 1)) / data.length;
+              const barWidth =
+                (1000 -
+                  padding.left -
+                  padding.right -
+                  barSpacing * (data.length - 1)) /
+                data.length;
               const barHeight = Math.max(
                 (item.value / max) * chartAreaHeight,
                 minBarHeight
@@ -226,6 +281,53 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
               // Default to primary color if not specified
               const color = item.color || "primary";
               const gradient = colorGradients[color];
+
+              const handleMouseEnter = (
+                e: React.MouseEvent<SVGRectElement>
+              ) => {
+                // Cancel any pending hide timeout
+                if (tooltipTimeoutRef.current) {
+                  clearTimeout(tooltipTimeoutRef.current);
+                  tooltipTimeoutRef.current = null;
+                }
+
+                if (!containerRef.current) return;
+                const rect = containerRef.current.getBoundingClientRect();
+                const svgRect = e.currentTarget.getBoundingClientRect();
+
+                // Calculate position relative to container
+                const tooltipX = svgRect.left + svgRect.width / 2 - rect.left;
+                const tooltipY = svgRect.top - rect.top - 10;
+
+                // Get tooltip content
+                const tooltipContent = item.tooltip ? (
+                  typeof item.tooltip === "function" ? (
+                    item.tooltip(item)
+                  ) : (
+                    item.tooltip
+                  )
+                ) : renderTooltip ? (
+                  renderTooltip(item)
+                ) : (
+                  <div className="text-sm">
+                    <div className="font-semibold">{item.label}</div>
+                    <div className="text-surface-300">Value: {item.value}</div>
+                  </div>
+                );
+
+                setTooltip({
+                  content: tooltipContent,
+                  x: tooltipX,
+                  y: tooltipY,
+                });
+              };
+
+              const handleMouseLeave = () => {
+                // Delay hiding tooltip to allow user to hover into it
+                tooltipTimeoutRef.current = setTimeout(() => {
+                  setTooltip(null);
+                }, 200);
+              };
 
               return (
                 <g key={`bar-${index}`}>
@@ -251,6 +353,8 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
                     style={{
                       filter: `drop-shadow(0 4px 0 ${gradient.shadow}) drop-shadow(0 6px 8px rgba(0,0,0,0.3))`,
                     }}
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
                   />
                   {/* Top border highlight */}
                   <line
@@ -287,6 +391,17 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
               );
             })}
           </svg>
+          {/* Tooltip */}
+          {tooltip && (
+            <TooltipComponent
+              x={tooltip.x}
+              y={tooltip.y}
+              onMouseEnter={handleTooltipMouseEnter}
+              onMouseLeave={handleTooltipMouseLeave}
+            >
+              {tooltip.content}
+            </TooltipComponent>
+          )}
         </div>
       </div>
     );
@@ -296,4 +411,3 @@ export const BarChart = React.forwardRef<HTMLDivElement, BarChartProps>(
 BarChart.displayName = "BarChart";
 
 export { barChartVariants };
-

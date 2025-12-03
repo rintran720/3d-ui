@@ -3,6 +3,7 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "../../lib/utils";
+import { ChartTooltip } from "./ChartTooltip";
 
 // ============================================================================
 // ScatterChart Variants
@@ -38,6 +39,10 @@ export interface ScatterChartData {
   x: number;
   y: number;
   label?: string;
+  /** Custom tooltip content for this point */
+  tooltip?:
+    | React.ReactNode
+    | ((data: ScatterChartData, seriesName: string) => React.ReactNode);
 }
 
 export interface ScatterChartSeries {
@@ -75,6 +80,17 @@ export interface ScatterChartProps
   formatX?: (value: number) => string;
   /** Format function for Y values */
   formatY?: (value: number) => string;
+  /** Custom tooltip renderer for all points */
+  renderTooltip?: (
+    data: ScatterChartData,
+    seriesName: string
+  ) => React.ReactNode;
+  /** Custom Tooltip component to use instead of default */
+  TooltipComponent?: React.ComponentType<{
+    x: number;
+    y: number;
+    children: React.ReactNode;
+  }>;
 }
 
 const colorMap = {
@@ -126,10 +142,41 @@ export const ScatterChart = React.forwardRef<HTMLDivElement, ScatterChartProps>(
       showLegend = true,
       formatX,
       formatY,
+      renderTooltip,
+      TooltipComponent = ChartTooltip,
       ...props
     },
     ref
   ) => {
+    const [tooltip, setTooltip] = React.useState<{
+      content: React.ReactNode;
+      x: number;
+      y: number;
+    } | null>(null);
+    const tooltipTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+    const containerRef = React.useRef<HTMLDivElement>(null);
+
+    // Cleanup timeout on unmount
+    React.useEffect(() => {
+      return () => {
+        if (tooltipTimeoutRef.current) {
+          clearTimeout(tooltipTimeoutRef.current);
+        }
+      };
+    }, []);
+
+    // Tooltip handlers
+    const handleTooltipMouseEnter = React.useCallback(() => {
+      if (tooltipTimeoutRef.current) {
+        clearTimeout(tooltipTimeoutRef.current);
+        tooltipTimeoutRef.current = null;
+      }
+    }, []);
+
+    const handleTooltipMouseLeave = React.useCallback(() => {
+      setTooltip(null);
+    }, []);
+
     const chartHeight = 350;
     const padding = { top: 20, right: 40, bottom: 50, left: 60 };
 
@@ -189,7 +236,11 @@ export const ScatterChart = React.forwardRef<HTMLDivElement, ScatterChartProps>(
           </div>
         )}
 
-        <div className="relative" style={{ height: chartHeight }}>
+        <div
+          ref={containerRef}
+          className="relative"
+          style={{ height: chartHeight }}
+        >
           <svg
             width="100%"
             height={chartHeight}
@@ -339,6 +390,54 @@ export const ScatterChart = React.forwardRef<HTMLDivElement, ScatterChartProps>(
                           style={{
                             filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.4))",
                           }}
+                          onMouseEnter={(e) => {
+                            // Cancel any pending hide timeout
+                            if (tooltipTimeoutRef.current) {
+                              clearTimeout(tooltipTimeoutRef.current);
+                              tooltipTimeoutRef.current = null;
+                            }
+
+                            if (!containerRef.current) return;
+                            const rect =
+                              containerRef.current.getBoundingClientRect();
+                            const circleRect =
+                              e.currentTarget.getBoundingClientRect();
+                            const tooltipX =
+                              circleRect.left +
+                              circleRect.width / 2 -
+                              rect.left;
+                            const tooltipY = circleRect.top - rect.top - 10;
+                            const tooltipContent = point.tooltip ? (
+                              typeof point.tooltip === "function" ? (
+                                point.tooltip(point, serie.name)
+                              ) : (
+                                point.tooltip
+                              )
+                            ) : renderTooltip ? (
+                              renderTooltip(point, serie.name)
+                            ) : (
+                              <div className="text-sm">
+                                <div className="font-semibold">
+                                  {serie.name}
+                                </div>
+                                <div className="text-surface-300">
+                                  X: {formatX ? formatX(point.x) : point.x}, Y:{" "}
+                                  {formatY ? formatY(point.y) : point.y}
+                                </div>
+                                {point.label && (
+                                  <div className="text-surface-400 text-xs">
+                                    {point.label}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                            setTooltip({
+                              content: tooltipContent,
+                              x: tooltipX,
+                              y: tooltipY,
+                            });
+                          }}
+                          onMouseLeave={() => setTooltip(null)}
                         />
                         {/* Point inner highlight */}
                         <circle
@@ -367,6 +466,17 @@ export const ScatterChart = React.forwardRef<HTMLDivElement, ScatterChartProps>(
               );
             })}
           </svg>
+          {/* Tooltip */}
+          {tooltip && (
+            <TooltipComponent
+              x={tooltip.x}
+              y={tooltip.y}
+              onMouseEnter={handleTooltipMouseEnter}
+              onMouseLeave={handleTooltipMouseLeave}
+            >
+              {tooltip.content}
+            </TooltipComponent>
+          )}
         </div>
 
         {/* Legend */}
