@@ -1,8 +1,28 @@
+<div align="center">
+
 # @votekio/3d-ui
 
 A beautiful 3D-styled UI component library built with React and TailwindCSS. Inspired by shadcn/ui but with a unique 3D aesthetic featuring depth, shadows, and interactive press effects.
 
-🌐 **[Live Demo](https://3d-ui-tawny.vercel.app/)** | 📦 **[npm](https://www.npmjs.com/package/@votekio/3d-ui)** | 📖 **[GitHub](https://github.com/rintran720/3d-ui)**
+[![npm version](https://img.shields.io/npm/v/@votekio/3d-ui.svg)](https://www.npmjs.com/package/@votekio/3d-ui)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+
+[🌐 Live Demo](https://3d-ui-tawny.vercel.app/) • [📦 npm](https://www.npmjs.com/package/@votekio/3d-ui) • [📖 GitHub](https://github.com/rintran720/3d-ui) • [☕ Buy Me a Coffee](https://buymeacoffee.com/rintran720)
+
+</div>
+
+---
+
+## 👨‍💻 Author
+
+**John Tran**
+
+- 📧 Email: [rintran720@gmail.com](mailto:rintran720@gmail.com)
+- 🌐 GitHub: [@rintran720](https://github.com/rintran720)
+- ☕ Support: [Buy Me a Coffee](https://buymeacoffee.com/rintran720)
+
+If you find this library useful, consider supporting the project! 🎉
 
 ## ✨ Features
 
@@ -19,55 +39,61 @@ A beautiful 3D-styled UI component library built with React and TailwindCSS. Ins
 
 ## 📦 Components
 
-| Component          | Description                             |
-| ------------------ | --------------------------------------- |
-| **Button**         | 3D buttons with press effects           |
-| **Accordion**      | Collapsible sections                    |
-| **Dialog**         | Modal dialogs with portal               |
-| **Alert**          | Alert messages with icons               |
-| **TextField**      | Text inputs with 3D styling             |
-| **TextArea**       | Multiline text inputs                   |
-| **Badge**          | Status badges and labels                |
-| **Card**           | Container cards with 3D effects         |
-| **Switch**         | Toggle switches                         |
-| **Checkbox**       | Checkbox inputs                         |
-| **Tabs**           | Tab navigation                          |
-| **Select**         | Dropdown select menus                   |
-| **Progress**       | Linear and circular progress indicators |
-| **Avatar**         | User avatars with status indicators     |
-| **Skeleton**       | Loading placeholders                    |
-| **Tooltip**        | Hover tooltips                          |
-| **Slider**         | Range sliders                           |
-| **RadioGroup**     | Radio button groups                     |
-| **Toast**          | Toast notifications                     |
-| **DropdownMenu**   | Context menus and dropdowns             |
-| **Separator**      | Visual dividers                         |
-| **Label**          | Form labels                             |
-| **Toggle**         | Toggle buttons                          |
-| **Popover**        | Popover dialogs                         |
-| **Sheet**          | Side sheets and drawers                 |
-| **Collapsible**    | Collapsible content sections            |
-| **HoverCard**      | Hover-triggered cards                   |
-| **ScrollArea**     | Custom scrollable areas                 |
-| **AspectRatio**    | Maintain aspect ratios                  |
-| **Breadcrumb**     | Navigation breadcrumbs                  |
-| **Command**        | Command palette and search              |
-| **Menubar**        | Application menu bars                   |
-| **NavigationMenu** | Navigation menus with dropdowns         |
-| **Table**          | Data tables                             |
-| **Pagination**     | Page navigation                         |
-| **Calendar**       | Date calendar picker                    |
-| **DatePicker**     | Date input with calendar                |
-| **Form**           | Form components and validation          |
-| **BarChart**       | 3D bar charts with gradients            |
-| **LineChart**      | Line charts with smooth curves          |
-| **PieChart**       | Pie and donut charts                    |
-| **AreaChart**      | Area charts with gradients              |
-| **ScatterChart**   | Scatter plots for correlation analysis  |
-| **RadarChart**     | Radar/spider charts for comparisons     |
-| **ComposedChart**  | Combined bar, line, and area charts     |
-| **GaugeChart**     | Gauge/speedometer charts for metrics    |
-| **ThemeProvider**  | Theme context provider                  |
+| Component          | Description                                 |
+| ------------------ | ------------------------------------------- |
+| **Button**         | 3D buttons with press effects               |
+| **Accordion**      | Collapsible sections                        |
+| **Dialog**         | Modal dialogs with portal                   |
+| **Alert**          | Alert messages with icons                   |
+| **TextField**      | Text inputs with 3D styling                 |
+| **TextArea**       | Multiline text inputs                       |
+| **Badge**          | Status badges and labels                    |
+| **Card**           | Container cards with 3D effects             |
+| **Switch**         | Toggle switches                             |
+| **Checkbox**       | Checkbox inputs                             |
+| **Tabs**           | Tab navigation                              |
+| **Select**         | Dropdown select menus                       |
+| **Progress**       | Linear and circular progress indicators     |
+| **Avatar**         | User avatars with status indicators         |
+| **Skeleton**       | Loading placeholders                        |
+| **Tooltip**        | Hover tooltips                              |
+| **Slider**         | Range sliders                               |
+| **RadioGroup**     | Radio button groups                         |
+| **Toast**          | Toast notifications                         |
+| **DropdownMenu**   | Context menus and dropdowns                 |
+| **Separator**      | Visual dividers                             |
+| **Label**          | Form labels                                 |
+| **Toggle**         | Toggle buttons                              |
+| **Popover**        | Popover dialogs                             |
+| **Sheet**          | Side sheets and drawers                     |
+| **Collapsible**    | Collapsible content sections                |
+| **HoverCard**      | Hover-triggered cards                       |
+| **ScrollArea**     | Custom scrollable areas                     |
+| **AspectRatio**    | Maintain aspect ratios                      |
+| **Breadcrumb**     | Navigation breadcrumbs                      |
+| **Command**        | Command palette and search                  |
+| **Menubar**        | Application menu bars                       |
+| **NavigationMenu** | Navigation menus with dropdowns             |
+| **Table**          | Data tables                                 |
+| **Pagination**     | Page navigation                             |
+| **Calendar**       | Date calendar picker                        |
+| **DatePicker**     | Date input with calendar                    |
+| **TimePicker**     | Time selection with hours, minutes, seconds |
+| **TimezonePicker** | Timezone selection with offset display      |
+| **DateTimePicker** | Combined date and time picker               |
+| **Form**           | Form components and validation              |
+| **Grid**           | Responsive grid layout system               |
+| **FileUpload**     | File upload with drag & drop support        |
+| **Rating**         | Star rating component (1-5 stars)           |
+| **BarChart**       | 3D bar charts with gradients                |
+| **LineChart**      | Line charts with smooth curves              |
+| **PieChart**       | Pie and donut charts                        |
+| **AreaChart**      | Area charts with gradients                  |
+| **ScatterChart**   | Scatter plots for correlation analysis      |
+| **RadarChart**     | Radar/spider charts for comparisons         |
+| **ComposedChart**  | Combined bar, line, and area charts         |
+| **GaugeChart**     | Gauge/speedometer charts for metrics        |
+| **ThemeProvider**  | Theme context provider                      |
 
 ## 🚀 Getting Started
 
@@ -423,6 +449,90 @@ import { Calendar, DatePicker } from "@votekio/3d-ui";
   onChange={setDate}
   placeholder="Pick a date"
 />
+```
+
+### TimePicker, TimezonePicker & DateTimePicker
+
+```tsx
+import { TimePicker, TimezonePicker, DateTimePicker } from "@votekio/3d-ui";
+
+// TimePicker
+<TimePicker
+  label="Select Time"
+  value={time}
+  onChange={setTime}
+  format="24h"
+  showSeconds
+/>
+
+// TimezonePicker
+<TimezonePicker
+  label="Select Timezone"
+  value={timezone}
+  onChange={setTimezone}
+  priorityTimezones={[
+    { value: "America/New_York", label: "Eastern Time" },
+    { value: "America/Los_Angeles", label: "Pacific Time" },
+  ]}
+/>
+
+// DateTimePicker
+<DateTimePicker
+  label="Select Date & Time"
+  value={dateTime}
+  onChange={setDateTime}
+  format="24h"
+  showSeconds
+/>
+```
+
+### Grid
+
+```tsx
+import { Grid, GridItem } from "@votekio/3d-ui";
+
+<Grid cols={12} gap={4}>
+  <GridItem colSpan={{ base: 12, md: 6, lg: 4 }}>
+    <Card>Item 1</Card>
+  </GridItem>
+  <GridItem colSpan={{ base: 12, md: 6, lg: 4 }}>
+    <Card>Item 2</Card>
+  </GridItem>
+  <GridItem colSpan={{ base: 12, md: 6, lg: 4 }}>
+    <Card>Item 3</Card>
+  </GridItem>
+</Grid>;
+```
+
+### FileUpload
+
+```tsx
+import { FileUpload } from "@votekio/3d-ui";
+
+<FileUpload
+  label="Upload Files"
+  value={files}
+  onChange={setFiles}
+  multiple
+  accept="image/*"
+  maxSize={5 * 1024 * 1024} // 5MB
+  maxFiles={5}
+/>;
+```
+
+### Rating
+
+```tsx
+import { Rating } from "@votekio/3d-ui";
+
+<Rating
+  value={rating}
+  onChange={setRating}
+  max={5}
+  allowHalf
+  color="primary"
+  size="lg"
+/>;
 ```
 
 ### Form
@@ -801,6 +911,27 @@ import { Button } from "@votekio/3d-ui";
 import "@votekio/3d-ui/styles/globals.css";
 ```
 
+## 💝 Support
+
+If this project has helped you in any way, or you'd like to support its continued development, please consider:
+
+- ⭐ **Starring** this repository
+- 🐛 **Reporting** bugs or suggesting features
+- 💬 **Sharing** with others who might find it useful
+- ☕ **[Buying me a coffee](https://buymeacoffee.com/rintran720)** to support development
+
+Your support means the world to me! 🙏
+
 ## 📄 License
 
-MIT © votekio
+MIT © [John Tran](https://github.com/rintran720)
+
+---
+
+<div align="center">
+
+Made with ❤️ by [John Tran](https://github.com/rintran720)
+
+[☕ Buy Me a Coffee](https://buymeacoffee.com/rintran720) • [📖 Documentation](https://3d-ui-tawny.vercel.app/) • [🐛 Report Bug](https://github.com/rintran720/3d-ui/issues)
+
+</div>
