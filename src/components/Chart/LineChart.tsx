@@ -67,6 +67,8 @@ export interface LineChartProps
   showDots?: boolean;
   /** Show area under line */
   showArea?: boolean;
+  /** Show legend */
+  showLegend?: boolean;
   /** Curve type */
   curve?: "linear" | "smooth";
   /** Custom tooltip renderer for all points */
@@ -128,6 +130,7 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
       showGrid = true,
       showDots = true,
       showArea = false,
+      showLegend = false,
       curve = "smooth",
       renderTooltip,
       TooltipComponent = ChartTooltip,
@@ -411,6 +414,32 @@ export const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>(
             </TooltipComponent>
           )}
         </div>
+
+        {/* Legend */}
+        {showLegend && series.length > 1 && (
+          <div className="mt-6 flex flex-wrap gap-4 justify-center">
+            {series.map((serie, index) => {
+              const color = colorMap[serie.color || "primary"];
+              return (
+                <div
+                  key={`legend-${index}`}
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{
+                      backgroundColor: color.stroke,
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                    }}
+                  />
+                  <span className="text-sm text-surface-300 font-medium">
+                    {serie.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   }

@@ -9,6 +9,8 @@ interface DropdownMenuContextValue {
   open: boolean;
   setOpen: (open: boolean) => void;
   triggerRef: React.RefObject<HTMLButtonElement>;
+  searchQuery?: string;
+  setSearchQuery?: (query: string) => void;
 }
 
 const DropdownMenuContext =
@@ -45,6 +47,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
   children,
 }) => {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
+  const [searchQuery, setSearchQuery] = React.useState("");
   const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   const isControlled = controlledOpen !== undefined;
@@ -56,12 +59,18 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
         setUncontrolledOpen(newOpen);
       }
       onOpenChange?.(newOpen);
+      // Clear search query when closing
+      if (!newOpen) {
+        setSearchQuery("");
+      }
     },
     [isControlled, onOpenChange]
   );
 
   return (
-    <DropdownMenuContext.Provider value={{ open, setOpen, triggerRef }}>
+    <DropdownMenuContext.Provider
+      value={{ open, setOpen, triggerRef, searchQuery, setSearchQuery }}
+    >
       <div className="relative inline-block">{children}</div>
     </DropdownMenuContext.Provider>
   );
@@ -213,6 +222,10 @@ export interface DropdownMenuItemProps
   closeOnClick?: boolean;
   /** Inset for icon alignment */
   inset?: boolean;
+  /** Searchable text for filtering (if not provided, uses children text) */
+  searchableText?: string;
+  /** Whether this item should be hidden when search query doesn't match */
+  hideOnSearch?: boolean;
 }
 
 const DropdownMenuItem = React.forwardRef<
@@ -227,11 +240,31 @@ const DropdownMenuItem = React.forwardRef<
       disabled,
       onClick,
       children,
+      searchableText,
+      hideOnSearch = true,
       ...props
     },
     ref
   ) => {
-    const { setOpen } = useDropdownMenuContext();
+    const { setOpen, searchQuery } = useDropdownMenuContext();
+
+    // Get text content from children for search matching
+    const getTextContent = (node: React.ReactNode): string => {
+      if (typeof node === "string") return node;
+      if (typeof node === "number") return String(node);
+      if (Array.isArray(node)) return node.map(getTextContent).join("");
+      if (React.isValidElement(node) && node.props.children) {
+        return getTextContent(node.props.children);
+      }
+      return "";
+    };
+
+    const itemText = searchableText || getTextContent(children);
+    const shouldHide =
+      hideOnSearch &&
+      searchQuery &&
+      searchQuery.trim() !== "" &&
+      !itemText.toLowerCase().includes(searchQuery.toLowerCase().trim());
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
       if (!disabled) {
@@ -241,6 +274,8 @@ const DropdownMenuItem = React.forwardRef<
         }
       }
     };
+
+    if (shouldHide) return null;
 
     return (
       <button
@@ -572,6 +607,52 @@ const DropdownMenuSubContent = React.forwardRef<
 
 DropdownMenuSubContent.displayName = "DropdownMenuSubContent";
 
+// ============================================================================
+// DropdownMenu Search
+// ============================================================================
+
+export interface DropdownMenuSearchProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  /** Placeholder text */
+  placeholder?: string;
+}
+
+const DropdownMenuSearch = React.forwardRef<
+  HTMLInputElement,
+  DropdownMenuSearchProps
+>(({ className, placeholder = "Search...", ...props }, ref) => {
+  const { searchQuery, setSearchQuery } = useDropdownMenuContext();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery?.(e.target.value);
+    props.onChange?.(e);
+  };
+
+  return (
+    <div className="px-2 py-1.5">
+      <input
+        ref={ref}
+        type="text"
+        value={searchQuery || ""}
+        onChange={handleChange}
+        placeholder={placeholder}
+        className={cn(
+          "w-full px-3 py-1.5 text-sm",
+          "rounded-md border border-surface-600",
+          "bg-surface-700 text-surface-200",
+          "placeholder:text-surface-500",
+          "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500",
+          "transition-colors duration-150",
+          className
+        )}
+        {...props}
+      />
+    </div>
+  );
+});
+
+DropdownMenuSearch.displayName = "DropdownMenuSearch";
+
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -585,4 +666,5 @@ export {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
+  DropdownMenuSearch,
 };

@@ -172,15 +172,21 @@ const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
       setInputValue(formatDate(selectedDate, dateFormat));
     }, [selectedDate, dateFormat]);
 
+    const handleOpenChange = React.useCallback((newOpen: boolean) => {
+      setOpen(newOpen);
+    }, []);
+
     const handleDateChange = React.useCallback(
       (date: Date) => {
+        // Commit immediately and close popover
         if (!isControlled) {
           setUncontrolledValue(date);
         }
         onChange?.(date);
+        setInputValue(formatDate(date, dateFormat));
         setOpen(false);
       },
-      [isControlled, onChange]
+      [dateFormat, isControlled, onChange]
     );
 
     const handleInputChange = React.useCallback(
@@ -220,17 +226,24 @@ const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
     return (
       <div
         ref={ref}
-        className={cn(datePickerVariants({ size }), className)}
+        className={cn(
+          datePickerVariants({ size }),
+          fullWidth && "w-full",
+          className
+        )}
         {...props}
       >
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover
+          open={open}
+          onOpenChange={handleOpenChange}
+          fullWidth={fullWidth}
+        >
           <PopoverTrigger asChild>
-            <div>
+            <div className={cn(fullWidth && "w-full block")}>
               <TextField
                 value={inputValue}
                 onChange={handleInputChange}
                 onBlur={handleInputBlur}
-                onFocus={() => setOpen(true)}
                 placeholder={placeholder}
                 label={label}
                 isRequired={isRequired}
@@ -242,19 +255,35 @@ const DatePicker = React.forwardRef<HTMLDivElement, DatePickerProps>(
                 readOnly={false}
                 fullWidth={fullWidth}
                 rightElement={
-                  <svg
-                    className="h-5 w-5 text-surface-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      if (!disabled) {
+                        setOpen(true);
+                      }
+                    }}
+                    disabled={disabled}
+                    className={cn(
+                      "cursor-pointer hover:text-surface-300 transition-colors",
+                      disabled && "cursor-not-allowed opacity-50"
+                    )}
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                    />
-                  </svg>
+                    <svg
+                      className="h-5 w-5 text-surface-400"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </button>
                 }
               />
             </div>

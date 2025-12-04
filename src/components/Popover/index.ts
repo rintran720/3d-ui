@@ -4,6 +4,7 @@ export {
   PopoverContent,
   PopoverClose,
   PopoverAnchor,
+  usePopoverContext,
 } from "./Popover";
 export type {
   PopoverProps,
@@ -12,4 +13,3 @@ export type {
   PopoverCloseProps,
   PopoverAnchorProps,
 } from "./Popover";
-

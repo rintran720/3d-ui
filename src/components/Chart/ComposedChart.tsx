@@ -398,7 +398,6 @@ export const ComposedChart = React.forwardRef<
                   textAnchor="start"
                   dominantBaseline="middle"
                   className="text-xs fill-surface-400 pointer-events-none"
-                  style={{ fill: colorGradients[lineColor].stroke }}
                 >
                   {Math.round(label.value)}
                 </text>
@@ -418,7 +417,6 @@ export const ComposedChart = React.forwardRef<
                   textAnchor="start"
                   dominantBaseline="middle"
                   className="text-xs fill-surface-400 pointer-events-none"
-                  style={{ fill: colorGradients[areaColor].stroke }}
                 >
                   {Math.round(label.value)}
                 </text>

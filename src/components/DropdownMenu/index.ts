@@ -11,6 +11,7 @@ export {
   DropdownMenuSub,
   DropdownMenuSubTrigger,
   DropdownMenuSubContent,
+  DropdownMenuSearch,
 } from "./DropdownMenu";
 export type {
   DropdownMenuProps,
@@ -23,5 +24,5 @@ export type {
   DropdownMenuSubProps,
   DropdownMenuSubTriggerProps,
   DropdownMenuSubContentProps,
+  DropdownMenuSearchProps,
 } from "./DropdownMenu";
-

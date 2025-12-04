@@ -60,6 +60,8 @@ export interface AreaChartProps
   showGrid?: boolean;
   /** Show data points */
   showDots?: boolean;
+  /** Show legend */
+  showLegend?: boolean;
   /** Curve type */
   curve?: "linear" | "smooth";
 }
@@ -112,6 +114,7 @@ export const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
       maxValue,
       showGrid = true,
       showDots = false,
+      showLegend = false,
       curve = "smooth",
       ...props
     },
@@ -141,7 +144,10 @@ export const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
       return padding.top + height - (value / max) * height;
     };
 
-    const createPath = (data: AreaChartData[], containerWidth: number = 1000) => {
+    const createPath = (
+      data: AreaChartData[],
+      containerWidth: number = 1000
+    ) => {
       if (data.length === 0) return "";
 
       if (curve === "smooth" && data.length > 2) {
@@ -152,7 +158,7 @@ export const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
           const y0 = getY(data[i - 1].value);
           const x1 = getX(i, containerWidth);
           const y1 = getY(data[i].value);
-          
+
           if (i === 1) {
             path += ` Q ${x0} ${y0}, ${(x0 + x1) / 2} ${(y0 + y1) / 2}`;
           } else {
@@ -216,8 +222,16 @@ export const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
                     x2="0%"
                     y2="100%"
                   >
-                    <stop offset="0%" stopColor={color.fill} stopOpacity="0.4" />
-                    <stop offset="100%" stopColor={color.fill} stopOpacity="0.05" />
+                    <stop
+                      offset="0%"
+                      stopColor={color.fill}
+                      stopOpacity="0.4"
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor={color.fill}
+                      stopOpacity="0.05"
+                    />
                   </linearGradient>
                 );
               })}
@@ -246,7 +260,12 @@ export const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
             {series.map((serie, serieIndex) => {
               const color = colorMap[serie.color || "primary"];
               const pathData = createPath(serie.data, 1000);
-              const areaPath = `${pathData} L ${getX(serie.data.length - 1, 1000)} ${chartHeight - padding.bottom} L ${getX(0, 1000)} ${chartHeight - padding.bottom} Z`;
+              const areaPath = `${pathData} L ${getX(
+                serie.data.length - 1,
+                1000
+              )} ${chartHeight - padding.bottom} L ${getX(0, 1000)} ${
+                chartHeight - padding.bottom
+              } Z`;
 
               return (
                 <g key={`series-${serieIndex}`}>
@@ -318,6 +337,32 @@ export const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
             })}
           </svg>
         </div>
+
+        {/* Legend */}
+        {showLegend && series.length > 1 && (
+          <div className="mt-6 flex flex-wrap gap-4 justify-center">
+            {series.map((serie, index) => {
+              const color = colorMap[serie.color || "primary"];
+              return (
+                <div
+                  key={`legend-${index}`}
+                  className="flex items-center gap-2"
+                >
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{
+                      backgroundColor: color.stroke,
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.3)",
+                    }}
+                  />
+                  <span className="text-sm text-surface-300 font-medium">
+                    {serie.name}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     );
   }
@@ -326,4 +371,3 @@ export const AreaChart = React.forwardRef<HTMLDivElement, AreaChartProps>(
 AreaChart.displayName = "AreaChart";
 
 export { areaChartVariants };
-

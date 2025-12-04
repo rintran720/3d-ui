@@ -364,7 +364,7 @@ const TextField = React.forwardRef<HTMLInputElement, TextFieldProps>(
               <div
                 className={cn(
                   "absolute right-0 top-0 bottom-0 flex items-center",
-                  "text-surface-400 pointer-events-none",
+                  "text-surface-400",
                   inputSize === "sm" && "pr-3",
                   inputSize === "md" && "pr-4",
                   inputSize === "lg" && "pr-5",

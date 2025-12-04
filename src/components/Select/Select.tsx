@@ -13,6 +13,7 @@ interface SelectContextValue {
   open: boolean;
   setOpen: (open: boolean) => void;
   disabled?: boolean;
+  closeOnSelect?: boolean;
   registerItem: (value: string, displayText: string) => void;
 }
 
@@ -30,7 +31,7 @@ const useSelectContext = () => {
 // Select Root
 // ============================================================================
 
-export interface SelectProps {
+export interface SelectProps extends React.HTMLAttributes<HTMLDivElement> {
   /** The controlled value */
   value?: string;
   /** Default value for uncontrolled */
@@ -39,6 +40,8 @@ export interface SelectProps {
   onValueChange?: (value: string) => void;
   /** Whether the select is disabled */
   disabled?: boolean;
+  /** Whether to close dropdown after selecting a value */
+  closeOnSelect?: boolean;
   /** Children */
   children: React.ReactNode;
 }
@@ -48,7 +51,10 @@ const Select: React.FC<SelectProps> = ({
   defaultValue = "",
   onValueChange,
   disabled,
+  closeOnSelect = true,
+  className,
   children,
+  ...props
 }) => {
   const [uncontrolledValue, setUncontrolledValue] =
     React.useState(defaultValue);
@@ -80,7 +86,9 @@ const Select: React.FC<SelectProps> = ({
     }
     setDisplayValue(newDisplayValue);
     onValueChange?.(newValue);
-    setOpen(false);
+    if (closeOnSelect) {
+      setOpen(false);
+    }
   };
 
   return (
@@ -92,10 +100,13 @@ const Select: React.FC<SelectProps> = ({
         open,
         setOpen,
         disabled,
+        closeOnSelect,
         registerItem,
       }}
     >
-      <div className="relative inline-block">{children}</div>
+      <div className={cn("relative inline-block", className)} {...props}>
+        {children}
+      </div>
     </SelectContext.Provider>
   );
 };
@@ -230,30 +241,105 @@ export interface SelectContentProps
 
 const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
   ({ className, children, ...props }, _ref) => {
-    const { open, setOpen } = useSelectContext();
+    const { open, setOpen, closeOnSelect } = useSelectContext();
     const contentRef = React.useRef<HTMLDivElement>(null);
 
-    // Close on click outside
+    // Close on click outside (only if closeOnSelect is true, or if clicking truly outside)
     React.useEffect(() => {
+      if (!open) return;
+
       const handleClickOutside = (event: MouseEvent) => {
-        if (
-          contentRef.current &&
-          !contentRef.current.contains(event.target as Node)
-        ) {
+        const target = event.target as HTMLElement;
+
+        // If closeOnSelect is false, only close when clicking outside the entire SelectContent
+        // Don't close when clicking on any SelectItem
+        const clickedOption = target.closest('[role="option"]');
+        if (clickedOption) {
+          // Always prevent closing when clicking on any option if closeOnSelect is false
+          if (closeOnSelect === false) {
+            return;
+          }
+          // If closeOnSelect is true, check if this option is within our SelectContent
+          if (
+            contentRef.current &&
+            contentRef.current.contains(clickedOption)
+          ) {
+            return; // Don't close if clicking on our own option (will be handled by closeOnSelect logic)
+          }
+        }
+
+        // Don't close if clicking on another SelectContent (for nested selects)
+        const clickedListbox = target.closest('[role="listbox"]');
+        if (clickedListbox && clickedListbox !== contentRef.current) {
+          return;
+        }
+
+        // Only close if click is truly outside
+        if (contentRef.current && !contentRef.current.contains(target)) {
           // Check if click was on trigger
           const trigger = contentRef.current.previousElementSibling;
-          if (trigger && !trigger.contains(event.target as Node)) {
+          if (trigger && !trigger.contains(target)) {
+            // Double check: make sure we're not clicking on any SelectItem
+            const allOptions = document.querySelectorAll('[role="option"]');
+            for (const option of allOptions) {
+              if (option.contains(target)) {
+                return; // Don't close if clicking on any option
+              }
+            }
             setOpen(false);
           }
         }
       };
 
-      if (open) {
-        document.addEventListener("mousedown", handleClickOutside);
-        return () =>
-          document.removeEventListener("mousedown", handleClickOutside);
-      }
-    }, [open, setOpen]);
+      // Use capture phase and a small delay to ensure SelectItem click processes first
+      const timeoutId = setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside, true);
+      }, 50);
+
+      return () => {
+        clearTimeout(timeoutId);
+        document.removeEventListener("mousedown", handleClickOutside, true);
+      };
+    }, [open, setOpen, closeOnSelect]);
+
+    // Auto-position: top or bottom based on viewport
+    const [position, setPosition] = React.useState<"top" | "bottom">("bottom");
+    const triggerRef = React.useRef<HTMLElement | null>(null);
+
+    React.useEffect(() => {
+      if (!open || !contentRef.current) return;
+
+      // Find the trigger element (previous sibling)
+      const trigger = contentRef.current.previousElementSibling as HTMLElement;
+      if (!trigger) return;
+
+      triggerRef.current = trigger;
+
+      const updatePosition = () => {
+        if (!contentRef.current || !trigger) return;
+
+        const triggerRect = trigger.getBoundingClientRect();
+        const contentHeight = 200; // max-h-[200px]
+        const spaceBelow = window.innerHeight - triggerRect.bottom;
+        const spaceAbove = triggerRect.top;
+
+        // If not enough space below but enough space above, show on top
+        if (spaceBelow < contentHeight && spaceAbove > spaceBelow) {
+          setPosition("top");
+        } else {
+          setPosition("bottom");
+        }
+      };
+
+      updatePosition();
+      window.addEventListener("scroll", updatePosition, true);
+      window.addEventListener("resize", updatePosition);
+
+      return () => {
+        window.removeEventListener("scroll", updatePosition, true);
+        window.removeEventListener("resize", updatePosition);
+      };
+    }, [open]);
 
     // Always render children (hidden when closed) so items can register
     // This ensures defaultValue can find its display text
@@ -261,18 +347,32 @@ const SelectContent = React.forwardRef<HTMLDivElement, SelectContentProps>(
       <div
         ref={contentRef}
         role="listbox"
+        data-select-content="true"
         className={cn(
-          "absolute z-50 mt-2 w-full min-w-[180px]",
+          "absolute z-50 w-full min-w-[180px]",
+          position === "bottom" ? "mt-2" : "mb-2 bottom-full",
           "rounded-lg border border-surface-600",
           "bg-surface-800 p-1",
           // 3D effect
           "shadow-[0_8px_16px_rgba(0,0,0,0.3),0_4px_0_0_rgba(0,0,0,0.2)]",
           // Show/hide based on open state
           open
-            ? "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+            ? position === "bottom"
+              ? "animate-in fade-in-0 zoom-in-95 slide-in-from-top-2"
+              : "animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-2"
             : "invisible opacity-0 pointer-events-none",
+          // Scrollable content with max height
+          "max-h-[200px] overflow-y-auto",
           className
         )}
+        onMouseDown={(e) => {
+          // Prevent Popover from closing when clicking inside SelectContent
+          e.stopPropagation();
+        }}
+        onClick={(e) => {
+          // Prevent Popover from closing when clicking inside SelectContent
+          e.stopPropagation();
+        }}
         {...props}
       >
         {children}
@@ -321,6 +421,19 @@ const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
       registerItem(value, displayText);
     }, [value, displayText, registerItem]);
 
+    const handleClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!disabled) {
+        onValueChange(value, displayText);
+      }
+    };
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+    };
+
     return (
       <div
         ref={ref}
@@ -328,7 +441,8 @@ const SelectItem = React.forwardRef<HTMLDivElement, SelectItemProps>(
         aria-selected={isSelected}
         aria-disabled={disabled}
         data-state={isSelected ? "checked" : "unchecked"}
-        onClick={() => !disabled && onValueChange(value, displayText)}
+        onClick={handleClick}
+        onMouseDown={handleMouseDown}
         className={cn(
           "relative flex cursor-pointer select-none items-center rounded-md px-3 py-2",
           "text-sm text-surface-200",

@@ -11,7 +11,7 @@ import { cn } from "../../lib/utils";
 interface PopoverContextValue {
   open: boolean;
   setOpen: (open: boolean) => void;
-  triggerRef: React.RefObject<HTMLButtonElement>;
+  triggerRef: React.RefObject<HTMLElement | HTMLButtonElement>;
 }
 
 const PopoverContext = React.createContext<PopoverContextValue | null>(null);
@@ -35,6 +35,10 @@ export interface PopoverProps {
   defaultOpen?: boolean;
   /** Callback when open state changes */
   onOpenChange?: (open: boolean) => void;
+  /** Whether popover should be full width */
+  fullWidth?: boolean;
+  /** Custom className for the wrapper */
+  className?: string;
   children: React.ReactNode;
 }
 
@@ -42,10 +46,12 @@ const Popover: React.FC<PopoverProps> = ({
   open: controlledOpen,
   defaultOpen = false,
   onOpenChange,
+  fullWidth = false,
+  className,
   children,
 }) => {
   const [uncontrolledOpen, setUncontrolledOpen] = React.useState(defaultOpen);
-  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const triggerRef = React.useRef<HTMLElement | HTMLButtonElement>(null);
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
@@ -62,7 +68,15 @@ const Popover: React.FC<PopoverProps> = ({
 
   return (
     <PopoverContext.Provider value={{ open, setOpen, triggerRef }}>
-      <div className="relative inline-block">{children}</div>
+      <div
+        className={cn(
+          "relative",
+          fullWidth ? "block w-full" : "inline-block",
+          className
+        )}
+      >
+        {children}
+      </div>
     </PopoverContext.Provider>
   );
 };
@@ -97,7 +111,7 @@ const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
 
     return (
       <button
-        ref={triggerRef}
+        ref={triggerRef as React.RefObject<HTMLButtonElement>}
         type="button"
         aria-expanded={open}
         aria-haspopup="dialog"
@@ -155,59 +169,153 @@ const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
     React.useEffect(() => {
       if (!open || !triggerRef.current || !contentRef.current) return;
 
-      const trigger = triggerRef.current.getBoundingClientRect();
-      const content = contentRef.current.getBoundingClientRect();
+      const updatePosition = () => {
+        if (!triggerRef.current || !contentRef.current) return;
 
-      let top = 0;
-      let left = 0;
+        const trigger = triggerRef.current.getBoundingClientRect();
+        const content = contentRef.current.getBoundingClientRect();
 
-      // Calculate vertical position
-      if (side === "bottom") {
-        top = trigger.bottom + sideOffset;
-      } else if (side === "top") {
-        top = trigger.top - content.height - sideOffset;
-      } else if (side === "left" || side === "right") {
-        top = trigger.top + (trigger.height - content.height) / 2;
-      }
-
-      // Calculate horizontal position
-      if (side === "left") {
-        left = trigger.left - content.width - sideOffset;
-      } else if (side === "right") {
-        left = trigger.right + sideOffset;
-      } else {
-        // top or bottom
-        if (align === "start") {
-          left = trigger.left;
-        } else if (align === "end") {
-          left = trigger.right - content.width;
-        } else {
-          // center
-          left = trigger.left + (trigger.width - content.width) / 2;
+        // For components with TextField, find the TextField container div (the one with w-full or w-fit)
+        // This ensures we align with the actual TextField container, not the outer wrapper
+        let actualTrigger = trigger;
+        if (triggerRef.current && align === "start" && side === "bottom") {
+          // Find the TextField container div (the outermost div that contains the input wrapper)
+          const textFieldContainer = triggerRef.current.querySelector(
+            'div[class*="w-full"], div[class*="w-fit"]'
+          ) as HTMLElement;
+          if (textFieldContainer) {
+            const containerRect = textFieldContainer.getBoundingClientRect();
+            // Use container if it has valid dimensions
+            if (containerRect.width > 0 && containerRect.height > 0) {
+              actualTrigger = containerRect;
+            }
+          }
         }
-      }
 
-      // Keep within viewport
-      const padding = 8;
-      left = Math.max(padding, Math.min(left, window.innerWidth - content.width - padding));
-      top = Math.max(padding, Math.min(top, window.innerHeight - content.height - padding));
+        let top = 0;
+        let left = 0;
 
-      setPosition({ top, left });
-    }, [open, align, side, sideOffset]);
+        // Calculate vertical position
+        if (side === "bottom") {
+          top = actualTrigger.bottom + sideOffset;
+        } else if (side === "top") {
+          top = actualTrigger.top - content.height - sideOffset;
+        } else if (side === "left" || side === "right") {
+          top = actualTrigger.top + (actualTrigger.height - content.height) / 2;
+        }
+
+        // Calculate horizontal position
+        if (side === "left") {
+          left = actualTrigger.left - content.width - sideOffset;
+        } else if (side === "right") {
+          left = actualTrigger.right + sideOffset;
+        } else {
+          // top or bottom
+          if (align === "start") {
+            left = actualTrigger.left;
+          } else if (align === "end") {
+            left = actualTrigger.right - content.width;
+          } else {
+            // center
+            left =
+              actualTrigger.left + (actualTrigger.width - content.width) / 2;
+          }
+        }
+
+        // Keep within viewport (only adjust if absolutely necessary)
+        const padding = 8;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        if (left + content.width > viewportWidth - padding) {
+          left = Math.max(padding, viewportWidth - content.width - padding);
+        } else if (left < padding) {
+          left = padding;
+        }
+
+        // Only adjust vertical if it would overflow
+        if (top + content.height > viewportHeight - padding) {
+          // Try to show above instead
+          if (side === "bottom") {
+            top = trigger.top - content.height - sideOffset;
+          }
+          // If still doesn't fit, adjust to fit
+          if (top < padding) {
+            top = padding;
+          }
+          if (top + content.height > viewportHeight - padding) {
+            top = Math.max(padding, viewportHeight - content.height - padding);
+          }
+        } else if (top < padding) {
+          top = padding;
+        }
+
+        setPosition({ top: Math.round(top), left: Math.round(left) });
+      };
+
+      // Use double requestAnimationFrame to ensure DOM is ready and styles (including padding) are applied
+      const rafId = requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          updatePosition();
+        });
+      });
+
+      // Also update on scroll and resize
+      const handleScroll = () => updatePosition();
+      const handleResize = () => updatePosition();
+
+      window.addEventListener("scroll", handleScroll, true);
+      window.addEventListener("resize", handleResize);
+
+      return () => {
+        cancelAnimationFrame(rafId);
+        window.removeEventListener("scroll", handleScroll, true);
+        window.removeEventListener("resize", handleResize);
+      };
+    }, [open, align, side, sideOffset, triggerRef, props.style]);
 
     // Close on click outside
     React.useEffect(() => {
       if (!open) return;
 
       const handleClickOutside = (e: MouseEvent) => {
-        if (
-          contentRef.current &&
-          !contentRef.current.contains(e.target as Node) &&
-          triggerRef.current &&
-          !triggerRef.current.contains(e.target as Node)
-        ) {
-          setOpen(false);
+        const target = e.target as Node;
+
+        // Check if click is inside PopoverContent
+        if (contentRef.current && contentRef.current.contains(target)) {
+          return;
         }
+
+        // Check if click is on trigger
+        if (triggerRef.current && triggerRef.current.contains(target)) {
+          return;
+        }
+
+        // Check if click is inside any SelectContent (which might be rendered via portal)
+        // SelectContent has z-[60] class and is rendered as a sibling to SelectTrigger
+        const selectContent = document.querySelector('[role="listbox"]');
+        if (selectContent && selectContent.contains(target)) {
+          return;
+        }
+
+        // Also check if clicking on any SelectItem (role="option")
+        // This is important for TimePicker where closeOnSelect={false}
+        if (target instanceof HTMLElement) {
+          const selectItem = target.closest('[role="option"]');
+          if (selectItem) {
+            return; // Don't close Popover when clicking on SelectItem
+          }
+        }
+
+        // Check if click is inside any PopoverContent (nested popovers)
+        const allPopovers = document.querySelectorAll('[role="dialog"]');
+        for (const popover of allPopovers) {
+          if (popover !== contentRef.current && popover.contains(target)) {
+            return;
+          }
+        }
+
+        setOpen(false);
       };
 
       const handleEscape = (e: KeyboardEvent) => {
@@ -231,7 +339,9 @@ const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
         ref={contentRef}
         role="dialog"
         className={cn(
-          "z-50 min-w-[200px] p-4",
+          "z-50 min-w-[200px]",
+          // Only apply default padding if not provided via style prop
+          !props.style?.padding && "p-4",
           "rounded-lg border border-surface-600",
           "bg-surface-800 text-surface-200",
           // 3D effect
@@ -242,8 +352,17 @@ const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
         )}
         style={
           portal
-            ? { position: "fixed", top: position.top, left: position.left }
-            : undefined
+            ? {
+                position: "fixed",
+                top: `${position.top}px`,
+                left: `${position.left}px`,
+                transform: "none",
+                willChange: "transform",
+                margin: 0,
+                boxSizing: "border-box",
+                ...(props.style || {}),
+              }
+            : props.style
         }
         {...props}
       >
@@ -260,6 +379,8 @@ const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
 );
 
 PopoverContent.displayName = "PopoverContent";
+
+export { usePopoverContext };
 
 // ============================================================================
 // Popover Close
@@ -287,12 +408,7 @@ const PopoverClose = React.forwardRef<HTMLButtonElement, PopoverCloseProps>(
     }
 
     return (
-      <button
-        ref={ref}
-        type="button"
-        onClick={handleClick}
-        {...props}
-      >
+      <button ref={ref} type="button" onClick={handleClick} {...props}>
         {children}
       </button>
     );
@@ -321,4 +437,3 @@ const PopoverAnchor = React.forwardRef<HTMLDivElement, PopoverAnchorProps>(
 PopoverAnchor.displayName = "PopoverAnchor";
 
 export { Popover, PopoverTrigger, PopoverContent, PopoverClose, PopoverAnchor };
-

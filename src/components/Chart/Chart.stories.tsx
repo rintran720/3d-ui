@@ -286,6 +286,7 @@ export const LineChartMultipleSeries: Story = {
   render: () => (
     <LineChart
       title="Performance Metrics"
+      description="Revenue and expenses comparison across quarters"
       series={[
         {
           name: "Revenue",
@@ -310,6 +311,7 @@ export const LineChartMultipleSeries: Story = {
       ]}
       showGrid
       showDots
+      showLegend
       curve="smooth"
     />
   ),
@@ -319,6 +321,7 @@ export const LineChartWithArea: Story = {
   render: () => (
     <LineChart
       title="Traffic Overview"
+      description="Weekly visitor statistics with area fill"
       series={[
         {
           name: "Visitors",
@@ -403,6 +406,7 @@ export const AreaChartDefault: Story = {
         },
       ]}
       showGrid
+      showLegend
       curve="smooth"
     />
   ),
@@ -412,6 +416,7 @@ export const AreaChartMultipleSeries: Story = {
   render: () => (
     <AreaChart
       title="Sales vs Expenses"
+      description="Quarterly comparison of sales revenue and operational expenses"
       series={[
         {
           name: "Sales",
@@ -435,6 +440,7 @@ export const AreaChartMultipleSeries: Story = {
         },
       ]}
       showGrid
+      showLegend
       curve="smooth"
     />
   ),
@@ -688,6 +694,7 @@ export const RadarChartMultipleSeries: Story = {
   render: () => (
     <RadarChart
       title="Product Comparison"
+      description="Side-by-side comparison of multiple products across key metrics"
       series={[
         {
           name: "Product A",
@@ -714,6 +721,7 @@ export const RadarChartMultipleSeries: Story = {
       ]}
       showGrid
       showArea
+      showLegend
     />
   ),
 };
