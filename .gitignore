@@ -29,3 +29,13 @@ pnpm-debug.log*
 # TypeScript
 *.tsbuildinfo
 
+# Cursor
+.cursorrules
+.cursorignore
+.cursorignorerules
+.cursorignorerulesrules
+.cursorignorerulesrulesrules
+.cursorignorerulesrulesrulesrules
+.cursorignorerulesrulesrulesrulesrules
+.cursorignorerulesrulesrulesrulesrulesrules
+.cursorignorerulesrulesrulesrulesrulesrulesrules

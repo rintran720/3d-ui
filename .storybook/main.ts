@@ -15,6 +15,34 @@ const config: StorybookConfig = {
   staticDirs: [],
   outputDir: "storybook-static",
   viteFinal: async (config) => {
+    // Optimize dependencies for optional peer dependencies
+    if (!config.optimizeDeps) {
+      config.optimizeDeps = {};
+    }
+    config.optimizeDeps.exclude = config.optimizeDeps.exclude || [];
+    config.optimizeDeps.exclude.push("hls.js");
+    
+    // Configure resolve to handle optional dependencies gracefully
+    if (!config.resolve) {
+      config.resolve = {};
+    }
+    
+    // Add plugin to handle optional imports
+    const originalPlugins = config.plugins || [];
+    config.plugins = [
+      ...originalPlugins,
+      {
+        name: "optional-deps",
+        resolveId(id) {
+          // Don't try to resolve optional dependencies if they don't exist
+          if (id === "hls.js") {
+            // Return null to let Vite handle it normally, but catch errors
+            return null;
+          }
+        },
+      },
+    ];
+    
     return config;
   },
 };

@@ -9,5 +9,16 @@ export default defineConfig({
       "@": resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    exclude: ["hls.js"],
+  },
+  build: {
+    rollupOptions: {
+      external: (id) => {
+        // Don't externalize these in build, but mark as optional
+        return false;
+      },
+    },
+  },
 });
 

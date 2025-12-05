@@ -85,6 +85,8 @@ If you find this library useful, consider supporting the project! 🎉
 | **Grid**           | Responsive grid layout system               |
 | **FileUpload**     | File upload with drag & drop support        |
 | **Rating**         | Star rating component (1-5 stars)           |
+| **Carousel**       | Image/content carousel with navigation      |
+| **Video**          | Custom video player with 3D controls        |
 | **BarChart**       | 3D bar charts with gradients                |
 | **LineChart**      | Line charts with smooth curves              |
 | **PieChart**       | Pie and donut charts                        |
@@ -533,6 +535,72 @@ import { Rating } from "@votekio/3d-ui";
   color="primary"
   size="lg"
 />;
+```
+
+### Carousel
+
+```tsx
+import {
+  Carousel,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+  CarouselDots,
+} from "@votekio/3d-ui";
+
+<Carousel
+  autoPlay={3000}
+  loop
+  showNavigation
+  showDots
+  swipeable
+  keyboardNavigation
+>
+  <CarouselItem>
+    <Card>
+      <CardContent>Slide 1</CardContent>
+    </Card>
+  </CarouselItem>
+  <CarouselItem>
+    <Card>
+      <CardContent>Slide 2</CardContent>
+    </Card>
+  </CarouselItem>
+  <CarouselItem>
+    <Card>
+      <CardContent>Slide 3</CardContent>
+    </Card>
+  </CarouselItem>
+</Carousel>;
+```
+
+### Video
+
+```tsx
+import { Video } from "@votekio/3d-ui";
+
+// Basic usage
+<Video
+  src="https://example.com/video.mp4"
+  showControls
+  customControls
+  autoHideControls={3000}
+/>;
+
+// With chapters/markers
+<Video
+  src="https://example.com/video.mp4"
+  chapters={[
+    { startTime: 0, endTime: 30, label: "Intro", color: "rgb(59, 130, 246)" },
+    { startTime: 30, endTime: 60, label: "Main", color: "rgb(34, 197, 94)" },
+    { startTime: 60, endTime: -1, label: "End", color: "rgb(239, 68, 68)" },
+  ]}
+  onTimeUpdate={(current, total) => console.log(current, total)}
+  onReady={(duration) => console.log("Duration:", duration)}
+/>;
+
+// HLS streaming (requires hls.js)
+<Video src="https://example.com/stream.m3u8" showControls customControls />;
 ```
 
 ### Form

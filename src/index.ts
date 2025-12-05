@@ -514,11 +514,47 @@ export type { DatePickerProps } from "./components/DatePicker";
 export { TimePicker, timePickerVariants } from "./components/TimePicker";
 export type { TimePickerProps } from "./components/TimePicker";
 
-export { TimezonePicker, timezonePickerVariants } from "./components/TimezonePicker";
+export {
+  TimezonePicker,
+  timezonePickerVariants,
+} from "./components/TimezonePicker";
 export type { TimezonePickerProps } from "./components/TimezonePicker";
 
-export { DateTimePicker, dateTimePickerVariants } from "./components/DateTimePicker";
+export {
+  DateTimePicker,
+  dateTimePickerVariants,
+} from "./components/DateTimePicker";
 export type { DateTimePickerProps } from "./components/DateTimePicker";
+
+export {
+  Video,
+  videoVariants,
+  videoControlsVariants,
+  videoButtonVariants,
+} from "./components/Video";
+export type { VideoProps, VideoChapter } from "./components/Video";
+
+export {
+  Carousel,
+  CarouselItem,
+  CarouselPrevious,
+  CarouselNext,
+  CarouselDots,
+  carouselVariants,
+  carouselContentVariants,
+  carouselItemVariants,
+  carouselButtonVariants,
+  carouselDotsVariants,
+  carouselDotVariants,
+  useCarousel,
+} from "./components/Carousel";
+export type {
+  CarouselProps,
+  CarouselItemProps,
+  CarouselPreviousProps,
+  CarouselNextProps,
+  CarouselDotsProps,
+} from "./components/Carousel";
 
 export {
   Form,
